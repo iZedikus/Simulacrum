@@ -1,0 +1,552 @@
+simulacrum/
+│
+├── pom.xml
+│
+├── src/
+│   ├── main/
+│   │   ├── java/
+│   │   │   └── ru/example/simulacrum/
+│   │   │       │
+│   │   │       ├── SimulacrumApplication.java
+│   │   │       │     @SpringBootApplication — точка входа
+│   │   │       │
+│   │   │       │── ══════════════════════════════════════════
+│   │   │       │   DOMAIN LAYER
+│   │   │       │── ══════════════════════════════════════════
+│   │   │       │
+│   │   │       ├── domain/
+│   │   │       │   │
+│   │   │       │   ├── model/
+│   │   │       │   │   │
+│   │   │       │   │   ├── account/                         ← Package «Account» из UML
+│   │   │       │   │   │   ├── Account.java
+│   │   │       │   │   │   │     AggregateRoot.
+│   │   │       │   │   │   │     Поля: accountId(String/UUID), status(AccountStatus),
+│   │   │       │   │   │   │     statusUpdateDateTime(Instant), currency(String),
+│   │   │       │   │   │   │     accountType(AccountType), accountDescription(String)
+│   │   │       │   │   │   │     Методы: enable(), disable(), delete()
+│   │   │       │   │   │   │
+│   │   │       │   │   │   ├── AccountStatus.java           ← Enum из UML
+│   │   │       │   │   │   │     Enabled, Disabled, Deleted
+│   │   │       │   │   │   │
+│   │   │       │   │   │   └── AccountType.java             ← Enum из UML
+│   │   │       │   │   │         Personal, Business
+│   │   │       │   │   │
+│   │   │       │   │   ├── transaction/                     ← Package «Transaction» из UML
+│   │   │       │   │   │   │
+│   │   │       │   │   │   ├── TransactionHistory.java      ← AggregateRoot
+│   │   │       │   │   │   │     Поля: transactionId(String), accountId(String),
+│   │   │       │   │   │   │     status(TransactionStatusCode),
+│   │   │       │   │   │   │     bankTransactionCode(BankTransactionCode),
+│   │   │       │   │   │   │     bookingDateTime(Instant), valueDateTime(Instant),
+│   │   │       │   │   │   │     chargeAmount(Money), remittanceInformation(Unstructured),
+│   │   │       │   │   │   │     creditorAgent(BranchAndFinancialInstitutionIdentification),
+│   │   │       │   │   │   │     debtorAgent(BranchAndFinancialInstitutionIdentification),
+│   │   │       │   │   │   │     creditor(Creditor), debtor(Debtor),
+│   │   │       │   │   │   │     creditorAccount(CashAccount), debtorAccount(CashAccount),
+│   │   │       │   │   │   │     cardTransaction(CardTransaction)
+│   │   │       │   │   │   │     Методы: accept(), reject(), complete()
+│   │   │       │   │   │   │
+│   │   │       │   │   │   ├── TransactionStatusCode.java   ← Enum из UML
+│   │   │       │   │   │   │     AcceptedSettlementCompleted,
+│   │   │       │   │   │   │     AcceptedSettlementInProcess,
+│   │   │       │   │   │   │     AcceptedWithoutPosting,
+│   │   │       │   │   │   │     Pending, Rejected
+│   │   │       │   │   │   │
+│   │   │       │   │   │   ├── BankTransactionCode.java     ← Enum из UML
+│   │   │       │   │   │   │     ObPayment (оплата товара) + остальные коды
+│   │   │       │   │   │   │
+│   │   │       │   │   │   ├── CreditDebitCode.java         ← Enum из UML
+│   │   │       │   │   │   │     Credit, Debit
+│   │   │       │   │   │   │
+│   │   │       │   │   │   ├── Debtor.java                  ← Value Object из UML
+│   │   │       │   │   │   │     Поля: name(String),
+│   │   │       │   │   │   │     identification(List<IdentificationType>),
+│   │   │       │   │   │   │     merchantInformation(MerchantInfo),
+│   │   │       │   │   │   │     postalAddress(PostalAddress12)
+│   │   │       │   │   │   │
+│   │   │       │   │   │   ├── Creditor.java                ← Value Object из UML
+│   │   │       │   │   │   │     Поля: name(String),
+│   │   │       │   │   │   │     identification(List<IdentificationType>),
+│   │   │       │   │   │   │     merchantInformation(MerchantInfo),
+│   │   │       │   │   │   │     postalAddress(PostalAddress12)
+│   │   │       │   │   │   │
+│   │   │       │   │   │   ├── CashAccount.java             ← Value Object из UML
+│   │   │       │   │   │   │     Поля: name(String), schemeName(AccountIdentificationCode),
+│   │   │       │   │   │   │     identification(String)
+│   │   │       │   │   │   │
+│   │   │       │   │   │   ├── AccountIdentificationCode.java ← Enum из UML
+│   │   │       │   │   │   │     BBAN, IBAN, PAN, Paym, ...
+│   │   │       │   │   │   │
+│   │   │       │   │   │   ├── BranchAndFinancialInstitutionIdentification.java ← VO из UML
+│   │   │       │   │   │   │     Поля: schemeName(FinancialInstitutionIdentificationCode),
+│   │   │       │   │   │   │     identification(String)  [BIC банка]
+│   │   │       │   │   │   │
+│   │   │       │   │   │   ├── FinancialInstitutionIdentificationCode.java ← Enum из UML
+│   │   │       │   │   │   │     BIC, ...
+│   │   │       │   │   │   │
+│   │   │       │   │   │   ├── Unstructured.java            ← Value Object из UML
+│   │   │       │   │   │   │     Поле: unstructured(String) — назначение платежа
+│   │   │       │   │   │   │
+│   │   │       │   │   │   ├── PostalAddress12.java         ← Value Object из UML
+│   │   │       │   │   │   │     Поля: streetName, buildingNumber, postCode,
+│   │   │       │   │   │   │     townName, country, addressLine
+│   │   │       │   │   │   │
+│   │   │       │   │   │   ├── MerchantInfo.java            ← Value Object из UML
+│   │   │       │   │   │   │     Поля: merchantName(String), merchantCategoryCode(int),
+│   │   │       │   │   │   │     merchantId(String)
+│   │   │       │   │   │   │
+│   │   │       │   │   │   ├── IdentificationType.java      ← Value Object из UML
+│   │   │       │   │   │   │     Поля: schemeName(String), identification(String)
+│   │   │       │   │   │   │
+│   │   │       │   │   │   ├── CardTransaction.java         ← Value Object из UML
+│   │   │       │   │   │   │     Поля: cardTransactionId(String),
+│   │   │       │   │   │   │     paymentCard(PaymentCard),
+│   │   │       │   │   │   │     cardIndividualTransaction(CardIndividualTransaction)
+│   │   │       │   │   │   │
+│   │   │       │   │   │   ├── PaymentCard.java             ← Value Object из UML
+│   │   │       │   │   │   │     Поля: maskedPan(String), cardSchemeName(CardSchemeNameCode),
+│   │   │       │   │   │   │     expiryDate(String), additionalCardData(String),
+│   │   │       │   │   │   │     cardStatus(CardStatus)
+│   │   │       │   │   │   │
+│   │   │       │   │   │   ├── CardSchemeNameCode.java      ← Enum из UML
+│   │   │       │   │   │   │     VISA, MasterCard, MIR
+│   │   │       │   │   │   │
+│   │   │       │   │   │   ├── CardStatus.java              ← Enum из ERD (card_status)
+│   │   │       │   │   │   │     Active, Expired, Blocked
+│   │   │       │   │   │   │
+│   │   │       │   │   │   ├── CardIndividualTransaction.java ← Value Object из UML
+│   │   │       │   │   │   │     Поля: terminalId(String), merchantTerminal(MerchantInfo),
+│   │   │       │   │   │   │     creditDebitIndicator(CreditDebitCode),
+│   │   │       │   │   │   │     amountDetails(ActiveOrHistoricCurrencyAndAmount)
+│   │   │       │   │   │   │
+│   │   │       │   │   │   └── ActiveOrHistoricCurrencyAndAmount.java ← Value Object из UML
+│   │   │       │   │   │         Поля: amount(BigDecimal), currency(String)
+│   │   │       │   │   │
+│   │   │       │   │   └── shared/
+│   │   │       │   │       └── Money.java                   ← Value Object (amount + currency)
+│   │   │       │   │
+│   │   │       │   ├── event/
+│   │   │       │   │   ├── DomainEvent.java                 ← sealed abstract base
+│   │   │       │   │   ├── TransactionCreatedEvent.java     ← при создании транзакции
+│   │   │       │   │   └── TransactionStatusChangedEvent.java ← при смене статуса
+│   │   │       │   │
+│   │   │       │   └── repository/
+│   │   │       │       ├── AccountRepository.java           ← Port: findById, save, findAll
+│   │   │       │       └── TransactionHistoryRepository.java ← Port: findById, save,
+│   │   │       │                                               findByAccountId(pageable)
+│   │   │       │
+│   │   │       │── ══════════════════════════════════════════
+│   │   │       │   APPLICATION LAYER
+│   │   │       │── ══════════════════════════════════════════
+│   │   │       │
+│   │   │       ├── application/
+│   │   │       │   │
+│   │   │       │   ├── port/
+│   │   │       │   │   └── DomainEventPublisherPort.java    ← исходящий порт → RabbitMQ
+│   │   │       │   │
+│   │   │       │   └── usecase/
+│   │   │       │       │
+│   │   │       │       ├── account/
+│   │   │       │       │   ├── CreateAccountUseCase.java
+│   │   │       │       │   │     Создать тестовый счёт. Command: accountId, currency,
+│   │   │       │       │   │     accountType. Возвращает Account.
+│   │   │       │       │   │
+│   │   │       │       │   ├── GetAccountUseCase.java
+│   │   │       │       │   │     Получить счёт по accountId.
+│   │   │       │       │   │
+│   │   │       │       │   ├── GetAccountsUseCase.java
+│   │   │       │       │   │     Получить список всех счетов.
+│   │   │       │       │   │
+│   │   │       │       │   ├── ChangeAccountStatusUseCase.java
+│   │   │       │       │   │     Изменить статус счёта (enable/disable/delete).
+│   │   │       │       │   │
+│   │   │       │       │   └── exception/
+│   │   │       │       │       └── AccountNotFoundException.java
+│   │   │       │       │
+│   │   │       │       ├── transaction/
+│   │   │       │       │   ├── GenerateTransactionUseCase.java
+│   │   │       │       │   │     Сгенерировать тестовую транзакцию для счёта.
+│   │   │       │       │   │     Command: accountId, mccCode, merchantName, amount,
+│   │   │       │       │   │     currency, creditDebitIndicator.
+│   │   │       │       │   │     Создаёт TransactionHistory, публикует
+│   │   │       │       │   │     TransactionCreatedEvent → RabbitMQ.
+│   │   │       │       │   │
+│   │   │       │       │   ├── GetTransactionsUseCase.java
+│   │   │       │       │   │     Получить выписку по accountId (пагинация).
+│   │   │       │       │   │
+│   │   │       │       │   ├── GetTransactionUseCase.java
+│   │   │       │       │   │     Получить одну транзакцию по transactionId.
+│   │   │       │       │   │
+│   │   │       │       │   ├── SubmitDebitUseCase.java
+│   │   │       │       │   │     Принять запрос на списание от ИС.
+│   │   │       │       │   │     Command: consentId, sourceAccountId, recipientToken,
+│   │   │       │       │   │     amount, currency.
+│   │   │       │       │   │     Создаёт TransactionHistory со статусом Pending,
+│   │   │       │       │   │     асинхронно переводит в AcceptedSettlementCompleted
+│   │   │       │       │   │     (или Rejected).
+│   │   │       │       │   │
+│   │   │       │       │   ├── GetDebitStatusUseCase.java
+│   │   │       │       │   │     Вернуть статус списания по transactionId.
+│   │   │       │       │   │
+│   │   │       │       │   └── exception/
+│   │   │       │       │       └── TransactionNotFoundException.java
+│   │   │       │       │
+│   │   │       │       └── consent/
+│   │   │       │           ├── RegisterConsentUseCase.java
+│   │   │       │           │     Зарегистрировать акцепт. Command: accountId, limits,
+│   │   │       │           │     creditorSystemId. Возвращает consentId.
+│   │   │       │           │
+│   │   │       │           ├── GetConsentUseCase.java
+│   │   │       │           │     Получить акцепт по consentId.
+│   │   │       │           │
+│   │   │       │           ├── RevokeConsentUseCase.java
+│   │   │       │           │     Отозвать акцепт.
+│   │   │       │           │
+│   │   │       │           └── exception/
+│   │   │       │               └── ConsentNotFoundException.java
+│   │   │       │
+│   │   │       │── ══════════════════════════════════════════
+│   │   │       │   INFRASTRUCTURE LAYER
+│   │   │       │── ══════════════════════════════════════════
+│   │   │       │
+│   │   │       └── infrastructure/
+│   │   │           │
+│   │   │           ├── config/
+│   │   │           │   ├── RabbitMQConfig.java
+│   │   │           │   │     Exchanges, Queues, Bindings.
+│   │   │           │   │     Exchange: simulacrum.events (TopicExchange)
+│   │   │           │   │     Routing keys:
+│   │   │           │   │       simulacrum.transaction.created
+│   │   │           │   │       simulacrum.transaction.status.changed
+│   │   │           │   │
+│   │   │           │   ├── JacksonConfig.java
+│   │   │           │   │     ObjectMapper: JavaTimeModule, snake_case,
+│   │   │           │   │     WRITE_DATES_AS_TIMESTAMPS=false
+│   │   │           │   │
+│   │   │           │   └── OpenApiConfig.java
+│   │   │           │         @OpenAPIDefinition: title="Simulacrum API",
+│   │   │           │         description, version, contact.
+│   │   │           │         Теги: Accounts, Transactions, Consents, Admin
+│   │   │           │
+│   │   │           ├── persistence/
+│   │   │           │   │
+│   │   │           │   ├── entity/                          ← JPA @Entity (отдельно от домена)
+│   │   │           │   │   ├── AccountJpaEntity.java
+│   │   │           │   │   │     @Table(name="account", schema="simulacrum")
+│   │   │           │   │   │     @Id accountId, status_id(FK), accountType_id(FK),
+│   │   │           │   │   │     statusUpdateDateTime, currency, accountDescription
+│   │   │           │   │   │
+│   │   │           │   │   ├── TransactionHistoryJpaEntity.java
+│   │   │           │   │   │     @Table(name="transaction_history", schema="simulacrum")
+│   │   │           │   │   │     @Id transactionId, accountId(FK→account),
+│   │   │           │   │   │     statusId(FK), bankTransactionCodeId(FK),
+│   │   │           │   │   │     bookingDateTime, valueDateTime,
+│   │   │           │   │   │     chargeAmount, chargeCurrencyId(FK→currency)
+│   │   │           │   │   │     @Embedded: DebtorEmbeddable, CreditorEmbeddable,
+│   │   │           │   │   │     DebtorAccountEmbeddable, CreditorAccountEmbeddable,
+│   │   │           │   │   │     RemittanceEmbeddable
+│   │   │           │   │   │     @OneToOne(cascade): CardTransactionJpaEntity
+│   │   │           │   │   │
+│   │   │           │   │   ├── CardTransactionJpaEntity.java
+│   │   │           │   │   │     @Table(name="card_transaction", schema="simulacrum")
+│   │   │           │   │   │     @Id cardTransactionId, authorizationCode,
+│   │   │           │   │   │     cardSchemeId(FK), maskedPan, expiryDate,
+│   │   │           │   │   │     additionalCardData, cardStatusId(FK)
+│   │   │           │   │   │
+│   │   │           │   │   ├── ConsentJpaEntity.java
+│   │   │           │   │   │     @Table(name="consent", schema="simulacrum")
+│   │   │           │   │   │     @Id consentId(UUID), accountId(FK), status,
+│   │   │           │   │   │     totalDebitLimit, maxSingleDebit, currency,
+│   │   │           │   │   │     purposeCode, creditorSystemId,
+│   │   │           │   │   │     grantedAt, expiresAt, revokedAt
+│   │   │           │   │   │
+│   │   │           │   │   └── embeddable/                  ← @Embeddable компоненты
+│   │   │           │   │       ├── DebtorEmbeddable.java
+│   │   │           │   │       │     debtor_name, debtor_postal_address_*
+│   │   │           │   │       │
+│   │   │           │   │       ├── CreditorEmbeddable.java
+│   │   │           │   │       │     creditor_name, creditor_postal_address_*
+│   │   │           │   │       │
+│   │   │           │   │       ├── CashAccountEmbeddable.java
+│   │   │           │   │       │     account_name, account_scheme, account_identification
+│   │   │           │   │       │
+│   │   │           │   │       └── RemittanceInfoEmbeddable.java
+│   │   │           │   │             remittance_unstructured
+│   │   │           │   │
+│   │   │           │   ├── SpringDataAccountRepo.java       ← JpaRepository<AccountJpaEntity,String>
+│   │   │           │   ├── SpringDataTransactionRepo.java   ← JpaRepository + findByAccountId(Page)
+│   │   │           │   ├── SpringDataConsentRepo.java       ← JpaRepository<ConsentJpaEntity,UUID>
+│   │   │           │   │
+│   │   │           │   ├── JpaAccountRepository.java        ← implements AccountRepository
+│   │   │           │   │     Маппинг: AccountJpaEntity ↔ Account (domain)
+│   │   │           │   │
+│   │   │           │   ├── JpaTransactionHistoryRepository.java ← implements TransactionHistoryRepository
+│   │   │           │   │     Маппинг: TransactionHistoryJpaEntity ↔ TransactionHistory
+│   │   │           │   │
+│   │   │           │   └── JpaConsentRepository.java        ← implements ConsentRepository (domain)
+│   │   │           │         Маппинг: ConsentJpaEntity ↔ Consent
+│   │   │           │
+│   │   │           ├── messaging/
+│   │   │           │   └── RabbitDomainEventPublisher.java
+│   │   │           │         implements DomainEventPublisherPort.
+│   │   │           │         switch(event) → routingKey → rabbitTemplate.convertAndSend
+│   │   │           │
+│   │   │           └── web/
+│   │   │               │
+│   │   │               ├── controller/
+│   │   │               │   ├── AccountController.java
+│   │   │               │   │     @RestController @RequestMapping("/api/v1/accounts")
+│   │   │               │   │     POST   /                    → CreateAccountUseCase
+│   │   │               │   │     GET    /                    → GetAccountsUseCase
+│   │   │               │   │     GET    /{accountId}         → GetAccountUseCase
+│   │   │               │   │     PATCH  /{accountId}/status  → ChangeAccountStatusUseCase
+│   │   │               │   │
+│   │   │               │   ├── TransactionController.java
+│   │   │               │   │     @RestController @RequestMapping("/api/v1")
+│   │   │               │   │     GET  /accounts/{accountId}/transactions          → GetTransactionsUseCase
+│   │   │               │   │     GET  /accounts/{accountId}/transactions/{txId}   → GetTransactionUseCase
+│   │   │               │   │     POST /admin/accounts/{accountId}/transactions/generate → GenerateTransactionUseCase
+│   │   │               │   │
+│   │   │               │   ├── PaymentController.java
+│   │   │               │   │     @RestController @RequestMapping("/api/v1/payments")
+│   │   │               │   │     POST  /debit                → SubmitDebitUseCase
+│   │   │               │   │     GET   /{transactionId}/status → GetDebitStatusUseCase
+│   │   │               │   │
+│   │   │               │   └── ConsentController.java
+│   │   │               │         @RestController @RequestMapping("/api/v1/consents")
+│   │   │               │         POST   /                    → RegisterConsentUseCase
+│   │   │               │         GET    /{consentId}         → GetConsentUseCase
+│   │   │               │         DELETE /{consentId}         → RevokeConsentUseCase
+│   │   │               │
+│   │   │               ├── dto/
+│   │   │               │   ├── request/
+│   │   │               │   │   ├── CreateAccountRequest.java
+│   │   │               │   │   │     accountId, currency, accountType, accountDescription
+│   │   │               │   │   │
+│   │   │               │   │   ├── ChangeAccountStatusRequest.java
+│   │   │               │   │   │     status (AccountStatus)
+│   │   │               │   │   │
+│   │   │               │   │   ├── GenerateTransactionRequest.java
+│   │   │               │   │   │     mccCode(int), merchantName, merchantId,
+│   │   │               │   │   │     amount, currency, creditDebitIndicator,
+│   │   │               │   │   │     debtorName, creditorName, remittanceInfo
+│   │   │               │   │   │
+│   │   │               │   │   ├── SubmitDebitRequest.java
+│   │   │               │   │   │     consentId, sourceAccountId, recipientPaymentToken,
+│   │   │               │   │   │     amount, currency
+│   │   │               │   │   │
+│   │   │               │   │   └── RegisterConsentRequest.java
+│   │   │               │   │         accountId, totalDebitLimit, maxSingleDebit,
+│   │   │               │   │         currency, purposeCode, creditorSystemId, expiresAt
+│   │   │               │   │
+│   │   │               │   └── response/
+│   │   │               │       ├── AccountResponse.java
+│   │   │               │       │     accountId, status, accountType, currency,
+│   │   │               │       │     accountDescription, statusUpdateDateTime
+│   │   │               │       │
+│   │   │               │       ├── TransactionResponse.java
+│   │   │               │       │     transactionId, accountId, status,
+│   │   │               │       │     bankTransactionCode, bookingDateTime, valueDateTime,
+│   │   │               │       │     chargeAmount, chargeCurrency,
+│   │   │               │       │     debtor{name, account}, creditor{name, account},
+│   │   │               │       │     merchantInfo{name, mccCode, merchantId},
+│   │   │               │       │     cardTransaction{maskedPan, scheme}
+│   │   │               │       │
+│   │   │               │       ├── TransactionPageResponse.java
+│   │   │               │       │     content(List<TransactionResponse>), page, size,
+│   │   │               │       │     totalElements, totalPages
+│   │   │               │       │
+│   │   │               │       ├── SubmitDebitResponse.java
+│   │   │               │       │     transactionId, status
+│   │   │               │       │
+│   │   │               │       ├── DebitStatusResponse.java
+│   │   │               │       │     transactionId, status, failureCode, failureMessage
+│   │   │               │       │
+│   │   │               │       └── ConsentResponse.java
+│   │   │               │             consentId, accountId, status, totalDebitLimit,
+│   │   │               │             maxSingleDebit, currency, grantedAt, expiresAt
+│   │   │               │
+│   │   │               └── exception/
+│   │   │                   └── GlobalExceptionHandler.java
+│   │   │                         @RestControllerAdvice
+│   │   │                         AccountNotFoundException    → 404
+│   │   │                         TransactionNotFoundException → 404
+│   │   │                         ConsentNotFoundException    → 404
+│   │   │                         IllegalStateException       → 409
+│   │   │                         MethodArgumentNotValidException → 400
+│   │   │                         Exception                   → 500
+│   │   │
+│   │   └── resources/
+│   │       ├── application.yml                              ← основной конфиг
+│   │       ├── application-dev.yml                         ← dev-профиль
+│   │       │
+│   │       └── db/migration/                               ← Flyway миграции
+│   │           ├── V1__create_schema.sql
+│   │           │     CREATE SCHEMA IF NOT EXISTS simulacrum;
+│   │           │
+│   │           ├── V2__create_reference_tables.sql
+│   │           │     Справочники (неизменяемые enum-таблицы из ERD):
+│   │           │
+│   │           │     -- account_status (id SMALLINT PK, code VARCHAR UNIQUE)
+│   │           │     -- Данные: Enabled, Disabled, Deleted
+│   │           │
+│   │           │     -- account_type (id SMALLINT PK, code VARCHAR UNIQUE)
+│   │           │     -- Данные: Personal, Business
+│   │           │
+│   │           │     -- transaction_status (id SMALLINT PK, code VARCHAR UNIQUE)
+│   │           │     -- Данные: AcceptedSettlementCompleted, AcceptedSettlementInProcess,
+│   │           │     --         AcceptedWithoutPosting, Pending, Rejected
+│   │           │
+│   │           │     -- bank_transaction_code (id SMALLINT PK, code VARCHAR UNIQUE)
+│   │           │     -- Данные: ObPayment, + другие коды
+│   │           │
+│   │           │     -- currency (currency_id SMALLINT PK, code CHAR(3) UNIQUE)
+│   │           │     -- Данные: RUB(643), USD(840), EUR(978)
+│   │           │
+│   │           │     -- card_scheme (id SMALLINT PK, code INTEGER UNIQUE)
+│   │           │     -- Данные: VISA, MasterCard, MIR
+│   │           │
+│   │           │     -- card_status (id SMALLINT PK, code VARCHAR UNIQUE)
+│   │           │     -- Данные: Active, Expired, Blocked
+│   │           │
+│   │           │     -- merchant_category_code (id SMALLINT PK, code INTEGER UNIQUE)
+│   │           │     -- Данные: 5912 (аптеки), 5813 (бары), 5912 (табак) и т.д.
+│   │           │
+│   │           │     -- participant_identification_scheme (id SMALLINT PK, code VARCHAR UNIQUE)
+│   │           │     -- Данные: BBAN, IBAN, PAN, BIC и т.д.
+│   │           │
+│   │           │     -- financial_institution_identification_code (id SMALLINT PK, code VARCHAR UNIQUE)
+│   │           │     -- Данные: BIC, LEI
+│   │           │
+│   │           │     -- account_identification_code (id SMALLINT PK, code VARCHAR UNIQUE)
+│   │           │     -- Данные: BBAN, IBAN, PAN, Paym
+│   │           │
+│   │           ├── V3__create_account_table.sql
+│   │           │     CREATE TABLE simulacrum.account (
+│   │           │       account_id            VARCHAR(255) PRIMARY KEY,
+│   │           │       status_id             SMALLINT NOT NULL REFERENCES account_status(id),
+│   │           │       account_type_id       SMALLINT NOT NULL REFERENCES account_type(id),
+│   │           │       status_update_datetime TIMESTAMP NOT NULL,
+│   │           │       currency              CHAR(3) NOT NULL,
+│   │           │       account_description   VARCHAR(255)
+│   │           │     );
+│   │           │
+│   │           ├── V4__create_consent_table.sql
+│   │           │     CREATE TABLE simulacrum.consent (
+│   │           │       consent_id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+│   │           │       account_id           VARCHAR(255) NOT NULL REFERENCES simulacrum.account,
+│   │           │       status               VARCHAR(30)  NOT NULL,
+│   │           │       total_debit_limit    NUMERIC(15,2),
+│   │           │       max_single_debit     NUMERIC(15,2),
+│   │           │       currency             CHAR(3) NOT NULL,
+│   │           │       purpose_code         VARCHAR(35),
+│   │           │       creditor_system_id   VARCHAR(255),
+│   │           │       granted_at           TIMESTAMP NOT NULL,
+│   │           │       expires_at           TIMESTAMP,
+│   │           │       revoked_at           TIMESTAMP
+│   │           │     );
+│   │           │
+│   │           ├── V5__create_transaction_tables.sql
+│   │           │     CREATE TABLE simulacrum.transaction_history (
+│   │           │       transaction_id          VARCHAR(255) PRIMARY KEY,
+│   │           │       account_id              VARCHAR(255) NOT NULL REFERENCES simulacrum.account,
+│   │           │       status_id               SMALLINT NOT NULL REFERENCES transaction_status(id),
+│   │           │       bank_transaction_code_id SMALLINT NOT NULL REFERENCES bank_transaction_code(id),
+│   │           │       booking_date_time        TIMESTAMP NOT NULL,
+│   │           │       value_date_time          TIMESTAMP NOT NULL,
+│   │           │       charge_amount            NUMERIC(15,2),
+│   │           │       charge_currency_id       SMALLINT REFERENCES currency(currency_id),
+│   │           │       -- Debtor (встроенный)
+│   │           │       debtor_name              VARCHAR(140),
+│   │           │       debtor_street            VARCHAR(70),
+│   │           │       debtor_building          VARCHAR(16),
+│   │           │       debtor_post_code         VARCHAR(16),
+│   │           │       debtor_town              VARCHAR(35),
+│   │           │       debtor_country           CHAR(2),
+│   │           │       -- Creditor (встроенный)
+│   │           │       creditor_name            VARCHAR(140),
+│   │           │       creditor_street          VARCHAR(70),
+│   │           │       creditor_building        VARCHAR(16),
+│   │           │       creditor_post_code       VARCHAR(16),
+│   │           │       creditor_town            VARCHAR(35),
+│   │           │       creditor_country         CHAR(2),
+│   │           │       -- Merchant info
+│   │           │       merchant_name            VARCHAR(70),
+│   │           │       merchant_id              VARCHAR(35),
+│   │           │       merchant_category_code_id SMALLINT REFERENCES merchant_category_code(id),
+│   │           │       -- Debtor account
+│   │           │       debtor_account_name      VARCHAR(70),
+│   │           │       debtor_account_scheme_id  SMALLINT REFERENCES account_identification_code(id),
+│   │           │       debtor_account_ident     VARCHAR(35),
+│   │           │       -- Creditor account
+│   │           │       creditor_account_name    VARCHAR(70),
+│   │           │       creditor_account_scheme_id SMALLINT REFERENCES account_identification_code(id),
+│   │           │       creditor_account_ident   VARCHAR(35),
+│   │           │       -- Remittance
+│   │           │       remittance_unstructured  VARCHAR(140),
+│   │           │       -- Card transaction FK (nullable — не все транзакции карточные)
+│   │           │       card_transaction_id      VARCHAR(255) REFERENCES simulacrum.card_transaction
+│   │           │     );
+│   │           │
+│   │           │     CREATE TABLE simulacrum.card_transaction (
+│   │           │       card_transaction_id  VARCHAR(255) PRIMARY KEY,
+│   │           │       authorization_code   VARCHAR(35),
+│   │           │       card_scheme_id       SMALLINT NOT NULL REFERENCES card_scheme(id),
+│   │           │       masked_pan           CHAR(4),
+│   │           │       expiry_date          VARCHAR(7),
+│   │           │       additional_card_data VARCHAR(70),
+│   │           │       card_status_id       SMALLINT NOT NULL REFERENCES card_status(id)
+│   │           │     );
+│   │           │
+│   │           │     CREATE TABLE simulacrum.terminal_merchant (
+│   │           │       terminal_id   VARCHAR(255) NOT NULL,
+│   │           │       merchant_id   VARCHAR(255) NOT NULL REFERENCES simulacrum.merchant(merchant_id),
+│   │           │       PRIMARY KEY (terminal_id, merchant_id)
+│   │           │     );
+│   │           │
+│   │           └── V6__create_indexes.sql
+│   │                 -- Производительность для типичных запросов
+│   │                 CREATE INDEX idx_transaction_account_id
+│   │                   ON simulacrum.transaction_history(account_id);
+│   │                 CREATE INDEX idx_transaction_booking_dt
+│   │                   ON simulacrum.transaction_history(booking_date_time DESC);
+│   │                 CREATE INDEX idx_transaction_status
+│   │                   ON simulacrum.transaction_history(status_id);
+│   │                 CREATE INDEX idx_consent_account_id
+│   │                   ON simulacrum.consent(account_id);
+│   │
+│   └── test/
+│       └── java/
+│           └── ru/example/simulacrum/
+│               │
+│               ├── domain/
+│               │   ├── AccountTest.java
+│               │   │     Проверка инвариантов: нельзя включить уже включённый счёт,
+│               │   │     нельзя провести транзакцию по заблокированному и т.д.
+│               │   │
+│               │   └── TransactionHistoryTest.java
+│               │         Проверка: нельзя изменить статус из Completed обратно.
+│               │
+│               ├── application/
+│               │   ├── GenerateTransactionUseCaseTest.java
+│               │   │     @ExtendWith(MockitoExtension). Мок репозиториев и порта.
+│               │   │
+│               │   └── SubmitDebitUseCaseTest.java
+│               │
+│               └── infrastructure/
+│                   └── web/
+│                       ├── AccountControllerTest.java
+│                       │     @WebMvcTest — только слой контроллера.
+│                       │
+│                       └── TransactionControllerTest.java
+│
+└── docker-compose.yml
+      services:
+        simulacrum-db:
+          image: postgres:16
+          environment: POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD
+          ports: 5433:5432
+        rabbitmq:
+          image: rabbitmq:3-management
+          ports: 5672, 15672
