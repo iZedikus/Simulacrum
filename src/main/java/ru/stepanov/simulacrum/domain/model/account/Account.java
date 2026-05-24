@@ -18,8 +18,43 @@ public class Account {
         this.status = AccountStatus.Enabled;
         this.statusUpdateDateTime = Instant.now();
     }
-    public void enable(){status = AccountStatus.Enabled; statusUpdateDateTime=Instant.now();}
-    public void disable(){status = AccountStatus.Disabled; statusUpdateDateTime=Instant.now();}
-    public void delete(){status = AccountStatus.Deleted; statusUpdateDateTime=Instant.now();}
-    public String getAccountId(){return accountId;} public AccountStatus getStatus(){return status;} public Instant getStatusUpdateDateTime(){return statusUpdateDateTime;} public String getCurrency(){return currency;} public AccountType getAccountType(){return accountType;} public String getAccountDescription(){return accountDescription;}
+
+    public void enable() {
+        status = AccountStatus.Enabled;
+        statusUpdateDateTime = Instant.now();
+    }
+
+    public void disable() {
+        status = AccountStatus.Disabled;
+        statusUpdateDateTime = Instant.now();
+    }
+
+    public void delete() {
+        status = AccountStatus.Deleted;
+        statusUpdateDateTime = Instant.now();
+    }
+
+    public String getAccountId() {
+        return accountId;
+    }
+
+    public AccountStatus getStatus() {
+        return status;
+    }
+
+    public Instant getStatusUpdateDateTime() {
+        return statusUpdateDateTime;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public AccountType getAccountType() {
+        return accountType;
+    }
+
+    public String getAccountDescription() {
+        return accountDescription;
+    }
 }

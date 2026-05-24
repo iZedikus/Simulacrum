@@ -1,4 +1,24 @@
 package ru.stepanov.simulacrum.infrastructure.messaging;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;import org.springframework.stereotype.Component;
-import ru.stepanov.simulacrum.application.port.DomainEventPublisherPort;import ru.stepanov.simulacrum.domain.event.*;import ru.stepanov.simulacrum.infrastructure.config.RabbitMQConfig;
-@Component public class RabbitDomainEventPublisher implements DomainEventPublisherPort { private final RabbitTemplate rabbit; public RabbitDomainEventPublisher(RabbitTemplate rabbit){this.rabbit=rabbit;} public void publish(DomainEvent event){ if(event instanceof TransactionCreatedEvent e){rabbit.convertAndSend(RabbitMQConfig.EXCHANGE,RabbitMQConfig.TRANSACTION_CREATED_KEY,e);} else if(event instanceof TransactionStatusChangedEvent e){rabbit.convertAndSend(RabbitMQConfig.EXCHANGE,"transaction.status.changed",e);} }}
+
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.stereotype.Component;
+import ru.stepanov.simulacrum.application.port.DomainEventPublisherPort;
+import ru.stepanov.simulacrum.domain.event.*;
+import ru.stepanov.simulacrum.infrastructure.config.RabbitMQConfig;
+
+@Component
+public class RabbitDomainEventPublisher implements DomainEventPublisherPort {
+    private final RabbitTemplate rabbit;
+
+    public RabbitDomainEventPublisher(RabbitTemplate rabbit) {
+        this.rabbit = rabbit;
+    }
+
+    public void publish(DomainEvent event) {
+        if (event instanceof TransactionCreatedEvent e) {
+            rabbit.convertAndSend(RabbitMQConfig.EXCHANGE, RabbitMQConfig.TRANSACTION_CREATED_KEY, e);
+        } else if (event instanceof TransactionStatusChangedEvent e) {
+            rabbit.convertAndSend(RabbitMQConfig.EXCHANGE, "transaction.status.changed", e);
+        }
+    }
+}

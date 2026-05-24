@@ -1,3 +1,19 @@
 package ru.stepanov.simulacrum.application.usecase.transaction;
-import org.springframework.stereotype.Service;import ru.stepanov.simulacrum.application.usecase.transaction.exception.TransactionNotFoundException;import ru.stepanov.simulacrum.domain.model.transaction.TransactionHistory;import ru.stepanov.simulacrum.domain.repository.TransactionHistoryRepository;
-@Service public class GetDebitStatusUseCase { private final TransactionHistoryRepository repo; public GetDebitStatusUseCase(TransactionHistoryRepository repo){this.repo=repo;} public TransactionHistory execute(String txId){return repo.findById(txId).orElseThrow(() -> new TransactionNotFoundException(txId));}}
+
+import org.springframework.stereotype.Service;
+import ru.stepanov.simulacrum.application.usecase.transaction.exception.TransactionNotFoundException;
+import ru.stepanov.simulacrum.domain.model.transaction.TransactionHistory;
+import ru.stepanov.simulacrum.domain.repository.TransactionHistoryRepository;
+
+@Service
+public class GetDebitStatusUseCase {
+    private final TransactionHistoryRepository repo;
+
+    public GetDebitStatusUseCase(TransactionHistoryRepository repo) {
+        this.repo = repo;
+    }
+
+    public TransactionHistory execute(String txId) {
+        return repo.findById(txId).orElseThrow(() -> new TransactionNotFoundException(txId));
+    }
+}
