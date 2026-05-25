@@ -3,6 +3,7 @@ package ru.stepanov.simulacrum.infrastructure.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.stepanov.simulacrum.domain.model.account.Account;
+import ru.stepanov.simulacrum.domain.model.consent.Consent;
 import ru.stepanov.simulacrum.domain.model.transaction.TransactionHistory;
 import ru.stepanov.simulacrum.domain.repository.*;
 
@@ -45,6 +46,21 @@ public class InMemoryRepositoryConfig {
 
             public List<TransactionHistory> findByAccountId(String a, int p, int s) {
                 return map.values().stream().filter(t -> t.getAccountId().equals(a)).toList();
+            }
+        };
+    }
+
+    @Bean
+    ConsentRepository consentRepository() {
+        Map<String, Consent> map = new ConcurrentHashMap<>();
+        return new ConsentRepository() {
+            public Optional<Consent> findById(String id) {
+                return Optional.ofNullable(map.get(id));
+            }
+
+            public Consent save(Consent consent) {
+                map.put(consent.getConsentId(), consent);
+                return consent;
             }
         };
     }
