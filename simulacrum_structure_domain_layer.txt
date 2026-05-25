@@ -1,0 +1,136 @@
+simulacrum/
+│
+├── pom.xml
+│
+├── src/
+│   ├── main/
+│   │   ├── java/
+│   │   │   └── ru/example/simulacrum/
+│   │   │       │
+│   │   │       ├── SimulacrumApplication.java
+│   │   │       │     @SpringBootApplication — точка входа
+│   │   │       │
+│   │   │       │── ══════════════════════════════════════════
+│   │   │       │   DOMAIN LAYER
+│   │   │       │── ══════════════════════════════════════════
+│   │   │       │
+│   │   │       ├── domain/
+│   │   │       │   │
+│   │   │       │   ├── model/
+│   │   │       │   │   │
+│   │   │       │   │   ├── account/                         ← Package «Account» из UML
+│   │   │       │   │   │   ├── Account.java
+│   │   │       │   │   │   │     AggregateRoot.
+│   │   │       │   │   │   │     Поля: accountId(String/UUID), status(AccountStatus),
+│   │   │       │   │   │   │     statusUpdateDateTime(Instant), currency(String),
+│   │   │       │   │   │   │     accountType(AccountType), accountDescription(String)
+│   │   │       │   │   │   │     Методы: enable(), disable(), delete()
+│   │   │       │   │   │   │
+│   │   │       │   │   │   ├── AccountStatus.java           ← Enum из UML
+│   │   │       │   │   │   │     Enabled, Disabled, Deleted
+│   │   │       │   │   │   │
+│   │   │       │   │   │   └── AccountType.java             ← Enum из UML
+│   │   │       │   │   │         Personal, Business
+│   │   │       │   │   │
+│   │   │       │   │   ├── transaction/                     ← Package «Transaction» из UML
+│   │   │       │   │   │   │
+│   │   │       │   │   │   ├── TransactionHistory.java      ← AggregateRoot
+│   │   │       │   │   │   │     Поля: transactionId(String), accountId(String),
+│   │   │       │   │   │   │     status(TransactionStatusCode),
+│   │   │       │   │   │   │     bankTransactionCode(BankTransactionCode),
+│   │   │       │   │   │   │     bookingDateTime(Instant), valueDateTime(Instant),
+│   │   │       │   │   │   │     chargeAmount(Money), remittanceInformation(Unstructured),
+│   │   │       │   │   │   │     creditorAgent(BranchAndFinancialInstitutionIdentification),
+│   │   │       │   │   │   │     debtorAgent(BranchAndFinancialInstitutionIdentification),
+│   │   │       │   │   │   │     creditor(Creditor), debtor(Debtor),
+│   │   │       │   │   │   │     creditorAccount(CashAccount), debtorAccount(CashAccount),
+│   │   │       │   │   │   │     cardTransaction(CardTransaction)
+│   │   │       │   │   │   │     Методы: accept(), reject(), complete()
+│   │   │       │   │   │   │
+│   │   │       │   │   │   ├── TransactionStatusCode.java   ← Enum из UML
+│   │   │       │   │   │   │     AcceptedSettlementCompleted,
+│   │   │       │   │   │   │     AcceptedSettlementInProcess,
+│   │   │       │   │   │   │     AcceptedWithoutPosting,
+│   │   │       │   │   │   │     Pending, Rejected
+│   │   │       │   │   │   │
+│   │   │       │   │   │   ├── BankTransactionCode.java     ← Enum из UML
+│   │   │       │   │   │   │     ObPayment (оплата товара) + остальные коды
+│   │   │       │   │   │   │
+│   │   │       │   │   │   ├── CreditDebitCode.java         ← Enum из UML
+│   │   │       │   │   │   │     Credit, Debit
+│   │   │       │   │   │   │
+│   │   │       │   │   │   ├── Debtor.java                  ← Value Object из UML
+│   │   │       │   │   │   │     Поля: name(String),
+│   │   │       │   │   │   │     identification(List<IdentificationType>),
+│   │   │       │   │   │   │     merchantInformation(MerchantInfo),
+│   │   │       │   │   │   │     postalAddress(PostalAddress12)
+│   │   │       │   │   │   │
+│   │   │       │   │   │   ├── Creditor.java                ← Value Object из UML
+│   │   │       │   │   │   │     Поля: name(String),
+│   │   │       │   │   │   │     identification(List<IdentificationType>),
+│   │   │       │   │   │   │     merchantInformation(MerchantInfo),
+│   │   │       │   │   │   │     postalAddress(PostalAddress12)
+│   │   │       │   │   │   │
+│   │   │       │   │   │   ├── CashAccount.java             ← Value Object из UML
+│   │   │       │   │   │   │     Поля: name(String), schemeName(AccountIdentificationCode),
+│   │   │       │   │   │   │     identification(String)
+│   │   │       │   │   │   │
+│   │   │       │   │   │   ├── AccountIdentificationCode.java ← Enum из UML
+│   │   │       │   │   │   │     BBAN, IBAN, PAN, Paym, ...
+│   │   │       │   │   │   │
+│   │   │       │   │   │   ├── BranchAndFinancialInstitutionIdentification.java ← VO из UML
+│   │   │       │   │   │   │     Поля: schemeName(FinancialInstitutionIdentificationCode),
+│   │   │       │   │   │   │     identification(String)  [BIC банка]
+│   │   │       │   │   │   │
+│   │   │       │   │   │   ├── FinancialInstitutionIdentificationCode.java ← Enum из UML
+│   │   │       │   │   │   │     BIC, ...
+│   │   │       │   │   │   │
+│   │   │       │   │   │   ├── Unstructured.java            ← Value Object из UML
+│   │   │       │   │   │   │     Поле: unstructured(String) — назначение платежа
+│   │   │       │   │   │   │
+│   │   │       │   │   │   ├── PostalAddress12.java         ← Value Object из UML
+│   │   │       │   │   │   │     Поля: streetName, buildingNumber, postCode,
+│   │   │       │   │   │   │     townName, country, addressLine
+│   │   │       │   │   │   │
+│   │   │       │   │   │   ├── MerchantInfo.java            ← Value Object из UML
+│   │   │       │   │   │   │     Поля: merchantName(String), merchantCategoryCode(int),
+│   │   │       │   │   │   │     merchantId(String)
+│   │   │       │   │   │   │
+│   │   │       │   │   │   ├── IdentificationType.java      ← Value Object из UML
+│   │   │       │   │   │   │     Поля: schemeName(String), identification(String)
+│   │   │       │   │   │   │
+│   │   │       │   │   │   ├── CardTransaction.java         ← Value Object из UML
+│   │   │       │   │   │   │     Поля: cardTransactionId(String),
+│   │   │       │   │   │   │     paymentCard(PaymentCard),
+│   │   │       │   │   │   │     cardIndividualTransaction(CardIndividualTransaction)
+│   │   │       │   │   │   │
+│   │   │       │   │   │   ├── PaymentCard.java             ← Value Object из UML
+│   │   │       │   │   │   │     Поля: maskedPan(String), cardSchemeName(CardSchemeNameCode),
+│   │   │       │   │   │   │     expiryDate(String), additionalCardData(String),
+│   │   │       │   │   │   │     cardStatus(CardStatus)
+│   │   │       │   │   │   │
+│   │   │       │   │   │   ├── CardSchemeNameCode.java      ← Enum из UML
+│   │   │       │   │   │   │     VISA, MasterCard, MIR
+│   │   │       │   │   │   │
+│   │   │       │   │   │   ├── CardStatus.java              ← Enum из ERD (card_status)
+│   │   │       │   │   │   │     Active, Expired, Blocked
+│   │   │       │   │   │   │
+│   │   │       │   │   │   ├── CardIndividualTransaction.java ← Value Object из UML
+│   │   │       │   │   │   │     Поля: terminalId(String), merchantTerminal(MerchantInfo),
+│   │   │       │   │   │   │     creditDebitIndicator(CreditDebitCode),
+│   │   │       │   │   │   │     amountDetails(ActiveOrHistoricCurrencyAndAmount)
+│   │   │       │   │   │   │
+│   │   │       │   │   │   └── ActiveOrHistoricCurrencyAndAmount.java ← Value Object из UML
+│   │   │       │   │   │         Поля: amount(BigDecimal), currency(String)
+│   │   │       │   │   │
+│   │   │       │   │   └── shared/
+│   │   │       │   │       └── Money.java                   ← Value Object (amount + currency)
+│   │   │       │   │
+│   │   │       │   ├── event/
+│   │   │       │   │   ├── DomainEvent.java                 ← sealed abstract base
+│   │   │       │   │   ├── TransactionCreatedEvent.java     ← при создании транзакции
+│   │   │       │   │   └── TransactionStatusChangedEvent.java ← при смене статуса
+│   │   │       │   │
+│   │   │       │   └── repository/
+│   │   │       │       ├── AccountRepository.java           ← Port: findById, save, findAll
+│   │   │       │       └── TransactionHistoryRepository.java ← Port: findById, save,
