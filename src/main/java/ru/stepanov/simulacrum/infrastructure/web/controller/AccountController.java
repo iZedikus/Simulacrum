@@ -24,7 +24,7 @@ public class AccountController {
 
     @PostMapping
     public Account create(@RequestBody CreateAccountRequest r) {
-        return create.execute(r.accountId(), r.currency(), r.accountType(), r.accountDescription());
+        return create.execute(r.getAccountId(), r.getCurrency(), r.getAccountType(), r.getAccountDescription());
     }
 
     @GetMapping
@@ -39,6 +39,6 @@ public class AccountController {
 
     @PatchMapping("/{accountId}/status")
     public Account status(@PathVariable String accountId, @RequestBody ChangeAccountStatusRequest r) {
-        return change.execute(accountId, r.status());
+        return change.execute(accountId, r.getStatus());
     }
 }

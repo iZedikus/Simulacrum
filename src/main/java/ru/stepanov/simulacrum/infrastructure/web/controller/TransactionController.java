@@ -16,6 +16,6 @@ public class TransactionController {
 
     @PostMapping("/admin/accounts/{accountId}/transactions/generate")
     public TransactionHistory generate(@PathVariable String accountId, @RequestBody GenerateTransactionRequest r) {
-        return generate.execute(accountId, r.mccCode(), r.merchantName(), r.merchantId(), r.amount(), r.currency(), r.creditDebitIndicator(), r.debtorName(), r.creditorName());
+        return generate.execute(accountId, r.getMccCode(), r.getMerchantName(), r.getMerchantId(), r.getAmount(), r.getCurrency(), r.getCreditDebitIndicator(), r.getDebtorName(), r.getCreditorName());
     }
 }
