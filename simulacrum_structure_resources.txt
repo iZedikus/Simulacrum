@@ -1,179 +1,36 @@
+Актуализированная структура проекта (проверено по состоянию на 2026-05-25):
+
 simulacrum/
-│
 ├── pom.xml
-│
-├── src/
-│   ├── main/
-│   │   └── resources/
-│   │       ├── application.properties                              ← основной конфиг
-│   │       ├── application-dev.properties                         ← dev-профиль
-│   │       │
-│   │       └── db/migration/                               ← Flyway миграции
-│   │           ├── V1__create_schema.sql
-│   │           │     CREATE SCHEMA IF NOT EXISTS simulacrum;
-│   │           │
-│   │           ├── V2__create_reference_tables.sql
-│   │           │     Справочники (неизменяемые enum-таблицы из ERD):
-│   │           │
-│   │           │     -- account_status (id SMALLINT PK, code VARCHAR UNIQUE)
-│   │           │     -- Данные: Enabled, Disabled, Deleted
-│   │           │
-│   │           │     -- account_type (id SMALLINT PK, code VARCHAR UNIQUE)
-│   │           │     -- Данные: Personal, Business
-│   │           │
-│   │           │     -- transaction_status (id SMALLINT PK, code VARCHAR UNIQUE)
-│   │           │     -- Данные: AcceptedSettlementCompleted, AcceptedSettlementInProcess,
-│   │           │     --         AcceptedWithoutPosting, Pending, Rejected
-│   │           │
-│   │           │     -- bank_transaction_code (id SMALLINT PK, code VARCHAR UNIQUE)
-│   │           │     -- Данные: ObPayment, + другие коды
-│   │           │
-│   │           │     -- currency (currency_id SMALLINT PK, code CHAR(3) UNIQUE)
-│   │           │     -- Данные: RUB(643), USD(840), EUR(978)
-│   │           │
-│   │           │     -- card_scheme (id SMALLINT PK, code INTEGER UNIQUE)
-│   │           │     -- Данные: VISA, MasterCard, MIR
-│   │           │
-│   │           │     -- card_status (id SMALLINT PK, code VARCHAR UNIQUE)
-│   │           │     -- Данные: Active, Expired, Blocked
-│   │           │
-│   │           │     -- merchant_category_code (id SMALLINT PK, code INTEGER UNIQUE)
-│   │           │     -- Данные: 5912 (аптеки), 5813 (бары), 5912 (табак) и т.д.
-│   │           │
-│   │           │     -- participant_identification_scheme (id SMALLINT PK, code VARCHAR UNIQUE)
-│   │           │     -- Данные: BBAN, IBAN, PAN, BIC и т.д.
-│   │           │
-│   │           │     -- financial_institution_identification_code (id SMALLINT PK, code VARCHAR UNIQUE)
-│   │           │     -- Данные: BIC, LEI
-│   │           │
-│   │           │     -- account_identification_code (id SMALLINT PK, code VARCHAR UNIQUE)
-│   │           │     -- Данные: BBAN, IBAN, PAN, Paym
-│   │           │
-│   │           ├── V3__create_account_table.sql
-│   │           │     CREATE TABLE simulacrum.account (
-│   │           │       account_id            VARCHAR(255) PRIMARY KEY,
-│   │           │       status_id             SMALLINT NOT NULL REFERENCES account_status(id),
-│   │           │       account_type_id       SMALLINT NOT NULL REFERENCES account_type(id),
-│   │           │       status_update_datetime TIMESTAMP NOT NULL,
-│   │           │       currency              CHAR(3) NOT NULL,
-│   │           │       account_description   VARCHAR(255)
-│   │           │     );
-│   │           │
-│   │           ├── V4__create_consent_table.sql
-│   │           │     CREATE TABLE simulacrum.consent (
-│   │           │       consent_id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-│   │           │       account_id           VARCHAR(255) NOT NULL REFERENCES simulacrum.account,
-│   │           │       status               VARCHAR(30)  NOT NULL,
-│   │           │       total_debit_limit    NUMERIC(15,2),
-│   │           │       max_single_debit     NUMERIC(15,2),
-│   │           │       currency             CHAR(3) NOT NULL,
-│   │           │       purpose_code         VARCHAR(35),
-│   │           │       creditor_system_id   VARCHAR(255),
-│   │           │       granted_at           TIMESTAMP NOT NULL,
-│   │           │       expires_at           TIMESTAMP,
-│   │           │       revoked_at           TIMESTAMP
-│   │           │     );
-│   │           │
-│   │           ├── V5__create_transaction_tables.sql
-│   │           │     CREATE TABLE simulacrum.transaction_history (
-│   │           │       transaction_id          VARCHAR(255) PRIMARY KEY,
-│   │           │       account_id              VARCHAR(255) NOT NULL REFERENCES simulacrum.account,
-│   │           │       status_id               SMALLINT NOT NULL REFERENCES transaction_status(id),
-│   │           │       bank_transaction_code_id SMALLINT NOT NULL REFERENCES bank_transaction_code(id),
-│   │           │       booking_date_time        TIMESTAMP NOT NULL,
-│   │           │       value_date_time          TIMESTAMP NOT NULL,
-│   │           │       charge_amount            NUMERIC(15,2),
-│   │           │       charge_currency_id       SMALLINT REFERENCES currency(currency_id),
-│   │           │       -- Debtor (встроенный)
-│   │           │       debtor_name              VARCHAR(140),
-│   │           │       debtor_street            VARCHAR(70),
-│   │           │       debtor_building          VARCHAR(16),
-│   │           │       debtor_post_code         VARCHAR(16),
-│   │           │       debtor_town              VARCHAR(35),
-│   │           │       debtor_country           CHAR(2),
-│   │           │       -- Creditor (встроенный)
-│   │           │       creditor_name            VARCHAR(140),
-│   │           │       creditor_street          VARCHAR(70),
-│   │           │       creditor_building        VARCHAR(16),
-│   │           │       creditor_post_code       VARCHAR(16),
-│   │           │       creditor_town            VARCHAR(35),
-│   │           │       creditor_country         CHAR(2),
-│   │           │       -- Merchant info
-│   │           │       merchant_name            VARCHAR(70),
-│   │           │       merchant_id              VARCHAR(35),
-│   │           │       merchant_category_code_id SMALLINT REFERENCES merchant_category_code(id),
-│   │           │       -- Debtor account
-│   │           │       debtor_account_name      VARCHAR(70),
-│   │           │       debtor_account_scheme_id  SMALLINT REFERENCES account_identification_code(id),
-│   │           │       debtor_account_ident     VARCHAR(35),
-│   │           │       -- Creditor account
-│   │           │       creditor_account_name    VARCHAR(70),
-│   │           │       creditor_account_scheme_id SMALLINT REFERENCES account_identification_code(id),
-│   │           │       creditor_account_ident   VARCHAR(35),
-│   │           │       -- Remittance
-│   │           │       remittance_unstructured  VARCHAR(140),
-│   │           │       -- Card transaction FK (nullable — не все транзакции карточные)
-│   │           │       card_transaction_id      VARCHAR(255) REFERENCES simulacrum.card_transaction
-│   │           │     );
-│   │           │
-│   │           │     CREATE TABLE simulacrum.card_transaction (
-│   │           │       card_transaction_id  VARCHAR(255) PRIMARY KEY,
-│   │           │       authorization_code   VARCHAR(35),
-│   │           │       card_scheme_id       SMALLINT NOT NULL REFERENCES card_scheme(id),
-│   │           │       masked_pan           CHAR(4),
-│   │           │       expiry_date          VARCHAR(7),
-│   │           │       additional_card_data VARCHAR(70),
-│   │           │       card_status_id       SMALLINT NOT NULL REFERENCES card_status(id)
-│   │           │     );
-│   │           │
-│   │           │     CREATE TABLE simulacrum.terminal_merchant (
-│   │           │       terminal_id   VARCHAR(255) NOT NULL,
-│   │           │       merchant_id   VARCHAR(255) NOT NULL REFERENCES simulacrum.merchant(merchant_id),
-│   │           │       PRIMARY KEY (terminal_id, merchant_id)
-│   │           │     );
-│   │           │
-│   │           └── V6__create_indexes.sql
-│   │                 -- Производительность для типичных запросов
-│   │                 CREATE INDEX idx_transaction_account_id
-│   │                   ON simulacrum.transaction_history(account_id);
-│   │                 CREATE INDEX idx_transaction_booking_dt
-│   │                   ON simulacrum.transaction_history(booking_date_time DESC);
-│   │                 CREATE INDEX idx_transaction_status
-│   │                   ON simulacrum.transaction_history(status_id);
-│   │                 CREATE INDEX idx_consent_account_id
-│   │                   ON simulacrum.consent(account_id);
-│   │
-│   └── test/
-│       └── java/
-│           └── ru/example/simulacrum/
-│               │
-│               ├── domain/
-│               │   ├── AccountTest.java
-│               │   │     Проверка инвариантов: нельзя включить уже включённый счёт,
-│               │   │     нельзя провести транзакцию по заблокированному и т.д.
-│               │   │
-│               │   └── TransactionHistoryTest.java
-│               │         Проверка: нельзя изменить статус из Completed обратно.
-│               │
-│               ├── application/
-│               │   ├── GenerateTransactionUseCaseTest.java
-│               │   │     @ExtendWith(MockitoExtension). Мок репозиториев и порта.
-│               │   │
-│               │   └── SubmitDebitUseCaseTest.java
-│               │
-│               └── infrastructure/
-│                   └── web/
-│                       ├── AccountControllerTest.java
-│                       │     @WebMvcTest — только слой контроллера.
-│                       │
-│                       └── TransactionControllerTest.java
-│
-└── docker-compose.yml
-      services:
-        simulacrum-db:
-          image: postgres:16
-          environment: POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD
-          ports: 5433:5432
-        rabbitmq:
-          image: rabbitmq:3-management
-          ports: 5672, 15672
+├── docker-compose.yml
+├── simulacrum_structure_resources.txt
+└── src/
+    ├── main/
+    │   └── resources/
+    │       ├── application.properties
+    │       ├── application-dev.properties
+    │       └── db/migration/
+    │           ├── V1__create_schema.sql
+    │           ├── V2__create_reference_tables.sql
+    │           ├── V3__create_account_table.sql
+    │           ├── V4__create_consent_table.sql
+    │           ├── V5__create_transaction_tables.sql
+    │           └── V6__create_indexes.sql
+    └── test/
+        └── java/ru/example/simulacrum/
+            ├── domain/
+            │   ├── AccountTest.java
+            │   └── TransactionHistoryTest.java
+            ├── application/
+            │   ├── GenerateTransactionUseCaseTest.java
+            │   └── SubmitDebitUseCaseTest.java
+            └── infrastructure/web/
+                ├── AccountControllerTest.java
+                └── TransactionControllerTest.java
+
+Что было исправлено относительно исходного плана:
+1) Добавлены отсутствовавшие в репозитории файлы проекта (pom, конфиги Spring, Flyway-миграции, docker-compose, тестовые классы-заглушки).
+2) В миграциях добавлена таблица simulacrum.merchant, так как terminal_merchant ссылалась на неё, но в исходном плане она не была определена.
+3) В V5 порядок создания таблиц скорректирован: сначала card_transaction, затем transaction_history с FK на card_transaction.
+4) Для consent используется gen_random_uuid(), поэтому в V4 добавлено CREATE EXTENSION IF NOT EXISTS pgcrypto.
+5) В docker-compose конкретизированы переменные окружения и порты для PostgreSQL и RabbitMQ.
