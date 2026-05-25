@@ -1,12 +1,19 @@
 package ru.stepanov.simulacrum.domain.model.transaction;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import ru.stepanov.simulacrum.domain.model.shared.Money;
 
 import java.time.Instant;
 
+@Getter
+@RequiredArgsConstructor
 public class TransactionHistory {
     private final String transactionId;
     private final String accountId;
+    @Setter(AccessLevel.PRIVATE)
     private TransactionStatusCode status;
     private final BankTransactionCode bankTransactionCode;
     private final Instant bookingDateTime;
@@ -20,8 +27,11 @@ public class TransactionHistory {
     private final CashAccount creditorAccount;
     private final CashAccount debtorAccount;
     private final CardTransaction cardTransaction;
+    @Setter(AccessLevel.PRIVATE)
     private String failureCode;
+    @Setter(AccessLevel.PRIVATE)
     private String failureMessage;
+
 
     public TransactionHistory(String transactionId, String accountId, TransactionStatusCode status, BankTransactionCode bankTransactionCode,
                               Instant bookingDateTime, Instant valueDateTime, Money chargeAmount, Unstructured remittanceInformation,
@@ -45,25 +55,17 @@ public class TransactionHistory {
         this.cardTransaction = cardTransaction;
     }
 
-    public void accept() { status = TransactionStatusCode.AcceptedSettlementInProcess; }
-    public void reject(String code, String message) { status = TransactionStatusCode.Rejected; failureCode = code; failureMessage = message; }
-    public void complete() { status = TransactionStatusCode.AcceptedSettlementCompleted; }
+    public void accept() {
+        setStatus(TransactionStatusCode.AcceptedSettlementInProcess);
+    }
 
-    public String getTransactionId() { return transactionId; }
-    public String getAccountId() { return accountId; }
-    public TransactionStatusCode getStatus() { return status; }
-    public BankTransactionCode getBankTransactionCode() { return bankTransactionCode; }
-    public Instant getBookingDateTime() { return bookingDateTime; }
-    public Instant getValueDateTime() { return valueDateTime; }
-    public Money getChargeAmount() { return chargeAmount; }
-    public Unstructured getRemittanceInformation() { return remittanceInformation; }
-    public BranchAndFinancialInstitutionIdentification getCreditorAgent() { return creditorAgent; }
-    public BranchAndFinancialInstitutionIdentification getDebtorAgent() { return debtorAgent; }
-    public Creditor getCreditor() { return creditor; }
-    public Debtor getDebtor() { return debtor; }
-    public CashAccount getCreditorAccount() { return creditorAccount; }
-    public CashAccount getDebtorAccount() { return debtorAccount; }
-    public CardTransaction getCardTransaction() { return cardTransaction; }
-    public String getFailureCode() { return failureCode; }
-    public String getFailureMessage() { return failureMessage; }
+    public void reject(String code, String message) {
+        setStatus(TransactionStatusCode.Rejected);
+        setFailureCode(code);
+        setFailureMessage(message);
+    }
+
+    public void complete() {
+        setStatus(TransactionStatusCode.AcceptedSettlementCompleted);
+    }
 }

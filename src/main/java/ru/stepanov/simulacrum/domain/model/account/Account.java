@@ -1,60 +1,36 @@
 package ru.stepanov.simulacrum.domain.model.account;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+
 import java.time.Instant;
 
+@Getter
+@RequiredArgsConstructor
 public class Account {
     private final String accountId;
-    private AccountStatus status;
-    private Instant statusUpdateDateTime;
+    @Setter(AccessLevel.PRIVATE)
+    private AccountStatus status = AccountStatus.Enabled;
+    @Setter(AccessLevel.PRIVATE)
+    private Instant statusUpdateDateTime = Instant.now();
     private final String currency;
     private final AccountType accountType;
     private final String accountDescription;
 
-    public Account(String accountId, String currency, AccountType accountType, String accountDescription) {
-        this.accountId = accountId;
-        this.currency = currency;
-        this.accountType = accountType;
-        this.accountDescription = accountDescription;
-        this.status = AccountStatus.Enabled;
-        this.statusUpdateDateTime = Instant.now();
-    }
-
     public void enable() {
-        status = AccountStatus.Enabled;
-        statusUpdateDateTime = Instant.now();
+        setStatus(AccountStatus.Enabled);
+        setStatusUpdateDateTime(Instant.now());
     }
 
     public void disable() {
-        status = AccountStatus.Disabled;
-        statusUpdateDateTime = Instant.now();
+        setStatus(AccountStatus.Disabled);
+        setStatusUpdateDateTime(Instant.now());
     }
 
     public void delete() {
-        status = AccountStatus.Deleted;
-        statusUpdateDateTime = Instant.now();
-    }
-
-    public String getAccountId() {
-        return accountId;
-    }
-
-    public AccountStatus getStatus() {
-        return status;
-    }
-
-    public Instant getStatusUpdateDateTime() {
-        return statusUpdateDateTime;
-    }
-
-    public String getCurrency() {
-        return currency;
-    }
-
-    public AccountType getAccountType() {
-        return accountType;
-    }
-
-    public String getAccountDescription() {
-        return accountDescription;
+        setStatus(AccountStatus.Deleted);
+        setStatusUpdateDateTime(Instant.now());
     }
 }
