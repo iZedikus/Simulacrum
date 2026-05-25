@@ -8,10 +8,10 @@ import ru.stepanov.simulacrum.domain.repository.TransactionHistoryRepository;
 
 @Service
 @RequiredArgsConstructor
-public class GetDebitStatusUseCase {
+public class GetTransactionUseCase {
     private final TransactionHistoryRepository repo;
 
-    public TransactionHistory execute(String txId) {
-        return repo.findById(txId).orElseThrow(() -> new TransactionNotFoundException(txId));
+    public TransactionHistory execute(String transactionId) {
+        return repo.findById(transactionId).orElseThrow(() -> new TransactionNotFoundException(transactionId));
     }
 }

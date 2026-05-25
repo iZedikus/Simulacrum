@@ -1,5 +1,6 @@
 package ru.stepanov.simulacrum.application.usecase.transaction;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.stepanov.simulacrum.application.port.DomainEventPublisherPort;
 import ru.stepanov.simulacrum.domain.event.TransactionCreatedEvent;
@@ -13,14 +14,10 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class GenerateTransactionUseCase {
     private final TransactionHistoryRepository repo;
     private final DomainEventPublisherPort publisher;
-
-    public GenerateTransactionUseCase(TransactionHistoryRepository repo, DomainEventPublisherPort publisher) {
-        this.repo = repo;
-        this.publisher = publisher;
-    }
 
     public TransactionHistory execute(String accountId, Integer mcc, String merchantName, String merchantId, BigDecimal amount, String currency, CreditDebitCode indicator, String debtorName, String creditorName) {
         String txId = "TX-" + UUID.randomUUID().toString().substring(0, 8);
