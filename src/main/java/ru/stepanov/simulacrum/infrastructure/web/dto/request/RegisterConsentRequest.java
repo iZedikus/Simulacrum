@@ -9,10 +9,10 @@ import java.math.BigDecimal;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SubmitDebitRequest {
-    private String consentId;
-    private String sourceAccountId;
-    private String recipientPaymentToken;
-    private BigDecimal amount;
+public class RegisterConsentRequest {
+    private String accountId;
+    private BigDecimal totalDebitLimit;
+    private BigDecimal maxSingleDebit;
     private String currency;
+    private String creditorSystemId;
 }
