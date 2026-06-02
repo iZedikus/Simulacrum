@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import ru.stepanov.simulacrum.application.port.DomainEventPublisherPort;
 import ru.stepanov.simulacrum.domain.event.*;
 import ru.stepanov.simulacrum.infrastructure.config.RabbitMQConfig;
+import ru.stepanov.simulacrum.infrastructure.messaging.dto.TransactionCreatedMessage;
 
 @Component
 public class RabbitDomainEventPublisher implements DomainEventPublisherPort {
@@ -16,7 +17,11 @@ public class RabbitDomainEventPublisher implements DomainEventPublisherPort {
 
     public void publish(DomainEvent event) {
         if (event instanceof TransactionCreatedEvent e) {
-            rabbit.convertAndSend(RabbitMQConfig.EXCHANGE, RabbitMQConfig.TRANSACTION_CREATED_KEY, e);
+            rabbit.convertAndSend(
+                    RabbitMQConfig.EXCHANGE,
+                    RabbitMQConfig.TRANSACTION_CREATED_KEY,
+                    TransactionCreatedMessage.from(e)
+            );
         } else if (event instanceof TransactionStatusChangedEvent e) {
             rabbit.convertAndSend(RabbitMQConfig.EXCHANGE, "transaction.status.changed", e);
         }
