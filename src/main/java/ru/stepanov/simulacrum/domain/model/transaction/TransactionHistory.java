@@ -27,6 +27,7 @@ public class TransactionHistory {
     private final CashAccount creditorAccount;
     private final CashAccount debtorAccount;
     private final CardTransaction cardTransaction;
+    private final String consentId;
     @Setter(AccessLevel.PRIVATE)
     private String failureCode;
     @Setter(AccessLevel.PRIVATE)
@@ -38,6 +39,16 @@ public class TransactionHistory {
                               BranchAndFinancialInstitutionIdentification creditorAgent, BranchAndFinancialInstitutionIdentification debtorAgent,
                               Creditor creditor, Debtor debtor, CashAccount creditorAccount, CashAccount debtorAccount,
                               CardTransaction cardTransaction) {
+        this(transactionId, accountId, status, bankTransactionCode, bookingDateTime, valueDateTime, chargeAmount,
+                remittanceInformation, creditorAgent, debtorAgent, creditor, debtor, creditorAccount, debtorAccount,
+                cardTransaction, null);
+    }
+
+    public TransactionHistory(String transactionId, String accountId, TransactionStatusCode status, BankTransactionCode bankTransactionCode,
+                              Instant bookingDateTime, Instant valueDateTime, Money chargeAmount, Unstructured remittanceInformation,
+                              BranchAndFinancialInstitutionIdentification creditorAgent, BranchAndFinancialInstitutionIdentification debtorAgent,
+                              Creditor creditor, Debtor debtor, CashAccount creditorAccount, CashAccount debtorAccount,
+                              CardTransaction cardTransaction, String consentId) {
         this.transactionId = transactionId;
         this.accountId = accountId;
         this.status = status;
@@ -53,6 +64,7 @@ public class TransactionHistory {
         this.creditorAccount = creditorAccount;
         this.debtorAccount = debtorAccount;
         this.cardTransaction = cardTransaction;
+        this.consentId = consentId;
     }
 
     public TransactionHistory(String transactionId, String accountId, TransactionStatusCode status, BankTransactionCode bankTransactionCode,
@@ -61,7 +73,18 @@ public class TransactionHistory {
                               Creditor creditor, Debtor debtor, CashAccount creditorAccount, CashAccount debtorAccount,
                               CardTransaction cardTransaction, String failureCode, String failureMessage) {
         this(transactionId, accountId, status, bankTransactionCode, bookingDateTime, valueDateTime, chargeAmount,
-                remittanceInformation, creditorAgent, debtorAgent, creditor, debtor, creditorAccount, debtorAccount, cardTransaction);
+                remittanceInformation, creditorAgent, debtorAgent, creditor, debtor, creditorAccount, debtorAccount, cardTransaction, null);
+        this.failureCode = failureCode;
+        this.failureMessage = failureMessage;
+    }
+
+    public TransactionHistory(String transactionId, String accountId, TransactionStatusCode status, BankTransactionCode bankTransactionCode,
+                              Instant bookingDateTime, Instant valueDateTime, Money chargeAmount, Unstructured remittanceInformation,
+                              BranchAndFinancialInstitutionIdentification creditorAgent, BranchAndFinancialInstitutionIdentification debtorAgent,
+                              Creditor creditor, Debtor debtor, CashAccount creditorAccount, CashAccount debtorAccount,
+                              CardTransaction cardTransaction, String consentId, String failureCode, String failureMessage) {
+        this(transactionId, accountId, status, bankTransactionCode, bookingDateTime, valueDateTime, chargeAmount,
+                remittanceInformation, creditorAgent, debtorAgent, creditor, debtor, creditorAccount, debtorAccount, cardTransaction, consentId);
         this.failureCode = failureCode;
         this.failureMessage = failureMessage;
     }

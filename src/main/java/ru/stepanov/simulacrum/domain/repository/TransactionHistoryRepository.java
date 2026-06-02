@@ -2,6 +2,7 @@ package ru.stepanov.simulacrum.domain.repository;
 
 import ru.stepanov.simulacrum.domain.model.transaction.TransactionHistory;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 public interface TransactionHistoryRepository {
@@ -10,4 +11,6 @@ public interface TransactionHistoryRepository {
     TransactionHistory save(TransactionHistory tx);
 
     List<TransactionHistory> findByAccountId(String accountId, int page, int size);
+
+    BigDecimal sumNonRejectedDebitAmountByConsentId(String consentId);
 }
