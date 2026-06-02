@@ -113,6 +113,11 @@ class SubmitDebitUseCaseTest {
         }
 
         @Override
+        public long countByAccountId(String accountId) {
+            return saved.stream().filter(tx -> tx.getAccountId().equals(accountId)).count();
+        }
+
+        @Override
         public BigDecimal sumNonRejectedDebitAmountByConsentId(String consentId) {
             return totalByConsentId.getOrDefault(consentId, BigDecimal.ZERO);
         }

@@ -12,5 +12,7 @@ public interface TransactionHistoryRepository {
 
     List<TransactionHistory> findByAccountId(String accountId, int page, int size);
 
+    long countByAccountId(String accountId);
+
     BigDecimal sumNonRejectedDebitAmountByConsentId(String consentId);
 }

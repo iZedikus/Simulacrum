@@ -15,4 +15,8 @@ public class GetTransactionsUseCase {
     public List<TransactionHistory> execute(String accountId, int page, int size) {
         return repo.findByAccountId(accountId, page, size);
     }
+
+    public long count(String accountId) {
+        return repo.countByAccountId(accountId);
+    }
 }

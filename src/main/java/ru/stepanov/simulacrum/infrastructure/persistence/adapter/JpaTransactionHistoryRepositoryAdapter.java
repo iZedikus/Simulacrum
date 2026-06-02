@@ -31,9 +31,15 @@ public class JpaTransactionHistoryRepositoryAdapter implements TransactionHistor
     @Override
     public List<TransactionHistory> findByAccountId(String accountId, int page, int size) {
         return springDataRepo.findByAccountIdOrderByBookingDateTimeDesc(accountId, PageRequest.of(page, size))
+                .getContent()
                 .stream()
                 .map(mapper::toDomain)
                 .toList();
+    }
+
+    @Override
+    public long countByAccountId(String accountId) {
+        return springDataRepo.countByAccountId(accountId);
     }
 
     @Override
