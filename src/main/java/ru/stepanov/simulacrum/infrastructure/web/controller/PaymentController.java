@@ -21,7 +21,7 @@ public class PaymentController {
     @ResponseStatus(HttpStatus.ACCEPTED)
     public SubmitDebitResponse debit(@RequestBody SubmitDebitRequest r) {
         var tx = submit.execute(r.getConsentId(), r.getSourceAccountId(), r.getRecipientPaymentToken(), r.getAmount(), r.getCurrency());
-        return new SubmitDebitResponse(tx.getTransactionId(), "Pending");
+        return new SubmitDebitResponse(tx.getTransactionId(), tx.getStatus().name());
     }
 
     @GetMapping("/{transactionId}/status")

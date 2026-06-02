@@ -8,6 +8,7 @@ import ru.stepanov.simulacrum.domain.repository.TransactionHistoryRepository;
 import ru.stepanov.simulacrum.infrastructure.persistence.SpringDataTransactionRepo;
 import ru.stepanov.simulacrum.infrastructure.persistence.mapper.TransactionHistoryPersistenceMapper;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,5 +34,10 @@ public class JpaTransactionHistoryRepositoryAdapter implements TransactionHistor
                 .stream()
                 .map(mapper::toDomain)
                 .toList();
+    }
+
+    @Override
+    public BigDecimal sumNonRejectedDebitAmountByConsentId(String consentId) {
+        return springDataRepo.sumNonRejectedDebitAmountByConsentId(consentId);
     }
 }

@@ -17,6 +17,7 @@ public class TransactionHistoryPersistenceMapper {
         return new TransactionHistoryJpaEntity(
                 transaction.getTransactionId(),
                 transaction.getAccountId(),
+                transaction.getConsentId(),
                 ReferenceDataMapper.transactionStatusId(transaction.getStatus()),
                 transaction.getStatus().name(),
                 ReferenceDataMapper.bankTransactionCodeId(transaction.getBankTransactionCode()),
@@ -31,7 +32,9 @@ public class TransactionHistoryPersistenceMapper {
                 toEmbeddable(transaction.getDebtorAccount()),
                 toEmbeddable(transaction.getCreditorAccount()),
                 toEmbeddable(transaction.getRemittanceInformation()),
-                toEntity(transaction.getCardTransaction())
+                toEntity(transaction.getCardTransaction()),
+                transaction.getFailureCode(),
+                transaction.getFailureMessage()
         );
     }
 
@@ -51,7 +54,10 @@ public class TransactionHistoryPersistenceMapper {
                 toDebtor(entity.getDebtor()),
                 toCashAccount(entity.getCreditorAccount()),
                 toCashAccount(entity.getDebtorAccount()),
-                toDomain(entity.getCardTransaction())
+                toDomain(entity.getCardTransaction()),
+                entity.getConsentId(),
+                entity.getFailureCode(),
+                entity.getFailureMessage()
         );
     }
 

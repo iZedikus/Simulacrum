@@ -18,7 +18,11 @@ public class JpaConsentRepositoryAdapter implements ConsentRepository {
 
     @Override
     public Optional<Consent> findById(String id) {
-        return springDataRepo.findById(UUID.fromString(id)).map(mapper::toDomain);
+        try {
+            return springDataRepo.findById(UUID.fromString(id)).map(mapper::toDomain);
+        } catch (IllegalArgumentException ex) {
+            return Optional.empty();
+        }
     }
 
     @Override

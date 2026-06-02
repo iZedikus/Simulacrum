@@ -33,6 +33,9 @@ public class TransactionHistoryJpaEntity {
     @Column(name = "account_id")
     private String accountId;
 
+    @Column(name = "consent_id")
+    private String consentId;
+
     @Column(name = "status_id")
     private Short statusId;
 
@@ -105,4 +108,10 @@ public class TransactionHistoryJpaEntity {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "card_transaction_id")
     private CardTransactionJpaEntity cardTransaction;
+
+    @Column(name = "failure_code")
+    private String failureCode;
+
+    @Column(name = "failure_message")
+    private String failureMessage;
 }
