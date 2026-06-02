@@ -55,6 +55,17 @@ public class TransactionHistory {
         this.cardTransaction = cardTransaction;
     }
 
+    public TransactionHistory(String transactionId, String accountId, TransactionStatusCode status, BankTransactionCode bankTransactionCode,
+                              Instant bookingDateTime, Instant valueDateTime, Money chargeAmount, Unstructured remittanceInformation,
+                              BranchAndFinancialInstitutionIdentification creditorAgent, BranchAndFinancialInstitutionIdentification debtorAgent,
+                              Creditor creditor, Debtor debtor, CashAccount creditorAccount, CashAccount debtorAccount,
+                              CardTransaction cardTransaction, String failureCode, String failureMessage) {
+        this(transactionId, accountId, status, bankTransactionCode, bookingDateTime, valueDateTime, chargeAmount,
+                remittanceInformation, creditorAgent, debtorAgent, creditor, debtor, creditorAccount, debtorAccount, cardTransaction);
+        this.failureCode = failureCode;
+        this.failureMessage = failureMessage;
+    }
+
     public void accept() {
         setStatus(TransactionStatusCode.AcceptedSettlementInProcess);
     }

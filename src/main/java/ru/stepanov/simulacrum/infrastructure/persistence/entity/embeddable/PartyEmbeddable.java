@@ -9,6 +9,11 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RemittanceInfoEmbeddable {
-    private String unstructured;
+public class PartyEmbeddable {
+    private String name;
+    private String streetName;
+    private String buildingNumber;
+    private String postCode;
+    private String townName;
+    private String country;
 }

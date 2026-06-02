@@ -19,6 +19,15 @@ public class Account {
     private final AccountType accountType;
     private final String accountDescription;
 
+    public Account(String accountId, AccountStatus status, Instant statusUpdateDateTime, String currency, AccountType accountType, String accountDescription) {
+        this.accountId = accountId;
+        this.status = status;
+        this.statusUpdateDateTime = statusUpdateDateTime;
+        this.currency = currency;
+        this.accountType = accountType;
+        this.accountDescription = accountDescription;
+    }
+
     public void enable() {
         setStatus(AccountStatus.Enabled);
         setStatusUpdateDateTime(Instant.now());
