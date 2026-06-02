@@ -1,5 +1,6 @@
 package ru.stepanov.simulacrum.infrastructure.web.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.stepanov.simulacrum.application.usecase.transaction.*;
@@ -19,7 +20,7 @@ public class PaymentController {
 
     @PostMapping("/debit")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public SubmitDebitResponse debit(@RequestBody SubmitDebitRequest r) {
+    public SubmitDebitResponse debit(@Valid @RequestBody SubmitDebitRequest r) {
         var tx = submit.execute(r.getConsentId(), r.getSourceAccountId(), r.getRecipientPaymentToken(), r.getAmount(), r.getCurrency());
         return new SubmitDebitResponse(tx.getTransactionId(), tx.getStatus().name());
     }

@@ -1,5 +1,6 @@
 package ru.stepanov.simulacrum.infrastructure.web.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +21,7 @@ public class ConsentController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ConsentResponse register(@RequestBody RegisterConsentRequest request) {
+    public ConsentResponse register(@Valid @RequestBody RegisterConsentRequest request) {
         String consentId = registerConsentUseCase.execute(
                 request.getAccountId(),
                 request.getTotalDebitLimit(),

@@ -1,5 +1,6 @@
 package ru.stepanov.simulacrum.infrastructure.web.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 import ru.stepanov.simulacrum.application.usecase.account.*;
 import ru.stepanov.simulacrum.application.usecase.transaction.GetTransactionsUseCase;
@@ -37,7 +38,7 @@ public class AccountController {
     }
 
     @PostMapping
-    public Account create(@RequestBody CreateAccountRequest r) {
+    public Account create(@Valid @RequestBody CreateAccountRequest r) {
         return create.execute(r.getAccountId(), r.getCurrency(), r.getAccountType(), r.getAccountDescription());
     }
 
@@ -52,7 +53,7 @@ public class AccountController {
     }
 
     @PatchMapping("/{accountId}/status")
-    public Account status(@PathVariable String accountId, @RequestBody ChangeAccountStatusRequest r) {
+    public Account status(@PathVariable String accountId, @Valid @RequestBody ChangeAccountStatusRequest r) {
         return change.execute(accountId, r.getStatus());
     }
 

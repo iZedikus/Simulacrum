@@ -1,5 +1,6 @@
 package ru.stepanov.simulacrum.infrastructure.web.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 import ru.stepanov.simulacrum.application.usecase.transaction.GenerateTransactionUseCase;
 import ru.stepanov.simulacrum.domain.model.transaction.TransactionHistory;
@@ -15,7 +16,7 @@ public class TransactionController {
     }
 
     @PostMapping("/admin/accounts/{accountId}/transactions/generate")
-    public TransactionHistory generate(@PathVariable String accountId, @RequestBody GenerateTransactionRequest r) {
+    public TransactionHistory generate(@PathVariable String accountId, @Valid @RequestBody GenerateTransactionRequest r) {
         return generate.execute(accountId, r.getMccCode(), r.getMerchantName(), r.getMerchantId(), r.getAmount(), r.getCurrency(), r.getCreditDebitIndicator(), r.getDebtorName(), r.getCreditorName());
     }
 }
