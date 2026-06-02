@@ -2,6 +2,7 @@ package ru.stepanov.simulacrum.infrastructure.persistence.entity;
 
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -13,15 +14,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.stepanov.simulacrum.infrastructure.persistence.entity.embeddable.CashAccountEmbeddable;
-import ru.stepanov.simulacrum.infrastructure.persistence.entity.embeddable.CreditorEmbeddable;
-import ru.stepanov.simulacrum.infrastructure.persistence.entity.embeddable.DebtorEmbeddable;
+import ru.stepanov.simulacrum.infrastructure.persistence.entity.embeddable.PartyEmbeddable;
 import ru.stepanov.simulacrum.infrastructure.persistence.entity.embeddable.RemittanceInfoEmbeddable;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 
 @Entity
-@Table(name = "transaction", schema = "simulacrum")
+@Table(name = "\"transaction\"", schema = "simulacrum")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -33,10 +33,16 @@ public class TransactionHistoryJpaEntity {
     @Column(name = "account_id")
     private String accountId;
 
-    @Column(name = "status")
+    @Column(name = "status_id")
+    private Short statusId;
+
+    @Column(name = "status", nullable = false)
     private String status;
 
-    @Column(name = "bank_transaction_code")
+    @Column(name = "bank_transaction_code_id")
+    private Short bankTransactionCodeId;
+
+    @Column(name = "bank_transaction_code", nullable = false)
     private String bankTransactionCode;
 
     @Column(name = "booking_date_time")
@@ -47,6 +53,9 @@ public class TransactionHistoryJpaEntity {
 
     @Column(name = "charge_amount")
     private BigDecimal chargeAmount;
+
+    @Column(name = "charge_currency_id")
+    private Short chargeCurrencyId;
 
     @Column(name = "charge_currency")
     private String chargeCurrency;
@@ -60,7 +69,7 @@ public class TransactionHistoryJpaEntity {
             @AttributeOverride(name = "townName", column = @Column(name = "debtor_town")),
             @AttributeOverride(name = "country", column = @Column(name = "debtor_country"))
     })
-    private DebtorEmbeddable debtor;
+    private PartyEmbeddable debtor;
 
     @Embedded
     @AttributeOverrides({
@@ -71,7 +80,7 @@ public class TransactionHistoryJpaEntity {
             @AttributeOverride(name = "townName", column = @Column(name = "creditor_town")),
             @AttributeOverride(name = "country", column = @Column(name = "creditor_country"))
     })
-    private CreditorEmbeddable creditor;
+    private PartyEmbeddable creditor;
 
     @Embedded
     @AttributeOverrides({
@@ -93,7 +102,7 @@ public class TransactionHistoryJpaEntity {
     @AttributeOverride(name = "unstructured", column = @Column(name = "remittance_unstructured"))
     private RemittanceInfoEmbeddable remittance;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "card_transaction_id")
     private CardTransactionJpaEntity cardTransaction;
 }
