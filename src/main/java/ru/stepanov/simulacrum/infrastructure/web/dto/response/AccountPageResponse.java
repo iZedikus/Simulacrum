@@ -9,7 +9,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class TransactionPageResponse {
-    private List<TransactionResponse> content;
+public class AccountPageResponse {
+    private List<AccountResponse> content;
     private PageMetaResponse meta;
 }

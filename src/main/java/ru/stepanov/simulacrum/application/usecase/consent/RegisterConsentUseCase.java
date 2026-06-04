@@ -6,6 +6,7 @@ import ru.stepanov.simulacrum.domain.model.consent.Consent;
 import ru.stepanov.simulacrum.domain.repository.ConsentRepository;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.UUID;
 
 @Service
@@ -13,9 +14,10 @@ import java.util.UUID;
 public class RegisterConsentUseCase {
     private final ConsentRepository repo;
 
-    public String execute(String accountId, BigDecimal totalDebitLimit, BigDecimal maxSingleDebit, String currency, String creditorSystemId) {
+    public String execute(String accountId, BigDecimal totalDebitLimit, BigDecimal maxSingleDebit,
+                          String currency, String purposeCode, String creditorSystemId, Instant expiresAt) {
         String consentId = UUID.randomUUID().toString();
-        repo.save(new Consent(consentId, accountId, totalDebitLimit, maxSingleDebit, currency, creditorSystemId));
+        repo.save(new Consent(consentId, accountId, totalDebitLimit, maxSingleDebit, currency, purposeCode, creditorSystemId, expiresAt));
         return consentId;
     }
 }

@@ -1,6 +1,7 @@
 package ru.stepanov.simulacrum.infrastructure.persistence.adapter;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 import ru.stepanov.simulacrum.domain.model.account.Account;
 import ru.stepanov.simulacrum.domain.repository.AccountRepository;
@@ -29,5 +30,19 @@ public class JpaAccountRepositoryAdapter implements AccountRepository {
     @Override
     public List<Account> findAll() {
         return springDataRepo.findAll().stream().map(mapper::toDomain).toList();
+    }
+
+    @Override
+    public List<Account> findAll(int page, int size) {
+        return springDataRepo.findAll(PageRequest.of(page, size))
+                .getContent()
+                .stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public long count() {
+        return springDataRepo.count();
     }
 }

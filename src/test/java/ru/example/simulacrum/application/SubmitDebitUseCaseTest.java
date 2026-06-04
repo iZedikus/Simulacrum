@@ -1,7 +1,9 @@
 package ru.example.simulacrum.application;
 
 import org.junit.jupiter.api.Test;
+import ru.stepanov.simulacrum.application.usecase.consent.exception.ConsentNotFoundException;
 import ru.stepanov.simulacrum.application.usecase.transaction.SubmitDebitUseCase;
+import ru.stepanov.simulacrum.application.usecase.transaction.exception.DebitRejectedException;
 import ru.stepanov.simulacrum.domain.model.account.Account;
 import ru.stepanov.simulacrum.domain.model.account.AccountStatus;
 import ru.stepanov.simulacrum.domain.model.account.AccountType;
@@ -11,8 +13,6 @@ import ru.stepanov.simulacrum.domain.model.transaction.TransactionStatusCode;
 import ru.stepanov.simulacrum.domain.repository.AccountRepository;
 import ru.stepanov.simulacrum.domain.repository.ConsentRepository;
 import ru.stepanov.simulacrum.domain.repository.TransactionHistoryRepository;
-import ru.stepanov.simulacrum.infrastructure.web.controller.PaymentController;
-import ru.stepanov.simulacrum.infrastructure.web.dto.request.SubmitDebitRequest;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -24,6 +24,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class SubmitDebitUseCaseTest {
     private final InMemoryTransactionHistoryRepository txRepository = new InMemoryTransactionHistoryRepository();
@@ -46,46 +47,30 @@ class SubmitDebitUseCaseTest {
     }
 
     @Test
-    void rejectsMissingConsentAndStoresFailureDetails() {
-        TransactionHistory tx = useCase.execute("missing-consent", "account-1", "recipient-token", new BigDecimal("10.00"), "RUB");
-
-        assertEquals(TransactionStatusCode.Rejected, tx.getStatus());
-        assertEquals("CONSENT_NOT_FOUND", tx.getFailureCode());
-        assertEquals("Consent does not exist", tx.getFailureMessage());
-        assertEquals(1, txRepository.saved.size());
+    void throwsConsentNotFoundForMissingConsent() {
+        assertThrows(ConsentNotFoundException.class, () ->
+                useCase.execute("missing-consent", "account-1", "recipient-token", new BigDecimal("10.00"), "RUB"));
     }
 
     @Test
-    void rejectsDisabledAccount() {
+    void throwsDebitRejectedForDisabledAccount() {
         accountRepository.save(new Account("account-1", AccountStatus.Disabled, Instant.now(), "RUB", AccountType.Personal, "disabled"));
         consentRepository.save(new Consent("consent-1", "account-1", new BigDecimal("100.00"), new BigDecimal("50.00"), "RUB", "creditor-1"));
 
-        TransactionHistory tx = useCase.execute("consent-1", "account-1", "recipient-token", new BigDecimal("10.00"), "RUB");
-
-        assertEquals(TransactionStatusCode.Rejected, tx.getStatus());
-        assertEquals("ACCOUNT_NOT_AVAILABLE", tx.getFailureCode());
+        DebitRejectedException ex = assertThrows(DebitRejectedException.class, () ->
+                useCase.execute("consent-1", "account-1", "recipient-token", new BigDecimal("10.00"), "RUB"));
+        assertEquals("ACCOUNT_DISABLED", ex.getErrorCode());
     }
 
     @Test
-    void rejectsWhenTotalDebitLimitWouldBeExceeded() {
+    void throwsDebitRejectedWhenTotalDebitLimitWouldBeExceeded() {
         accountRepository.save(enabledAccount("account-1", "RUB"));
         consentRepository.save(new Consent("consent-1", "account-1", new BigDecimal("15.00"), new BigDecimal("50.00"), "RUB", "creditor-1"));
         txRepository.totalByConsentId.put("consent-1", new BigDecimal("10.00"));
 
-        TransactionHistory tx = useCase.execute("consent-1", "account-1", "recipient-token", new BigDecimal("6.00"), "RUB");
-
-        assertEquals(TransactionStatusCode.Rejected, tx.getStatus());
-        assertEquals("TOTAL_DEBIT_LIMIT_EXCEEDED", tx.getFailureCode());
-    }
-
-    @Test
-    void paymentControllerReturnsActualStoredStatus() {
-        PaymentController controller = new PaymentController(useCase, null);
-        SubmitDebitRequest request = new SubmitDebitRequest("missing-consent", "account-1", "recipient-token", new BigDecimal("10.00"), "RUB");
-
-        var response = controller.debit(request);
-
-        assertEquals("Rejected", response.getStatus());
+        DebitRejectedException ex = assertThrows(DebitRejectedException.class, () ->
+                useCase.execute("consent-1", "account-1", "recipient-token", new BigDecimal("6.00"), "RUB"));
+        assertEquals("CONSENT_LIMIT_EXCEEDED", ex.getErrorCode());
     }
 
     private Account enabledAccount(String accountId, String currency) {
@@ -155,6 +140,16 @@ class SubmitDebitUseCaseTest {
         @Override
         public List<Account> findAll() {
             return new ArrayList<>(accounts.values());
+        }
+
+        @Override
+        public List<Account> findAll(int page, int size) {
+            return new ArrayList<>(accounts.values());
+        }
+
+        @Override
+        public long count() {
+            return accounts.size();
         }
     }
 }

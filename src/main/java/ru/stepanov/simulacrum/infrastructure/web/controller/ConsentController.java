@@ -27,7 +27,9 @@ public class ConsentController {
                 request.getTotalDebitLimit(),
                 request.getMaxSingleDebit(),
                 request.getCurrency(),
-                request.getCreditorSystemId()
+                request.getPurposeCode(),
+                request.getCreditorSystemId(),
+                request.getExpiresAt()
         );
         return toResponse(getConsentUseCase.execute(consentId));
     }
@@ -51,7 +53,11 @@ public class ConsentController {
                 consent.getTotalDebitLimit(),
                 consent.getMaxSingleDebit(),
                 consent.getCurrency(),
-                consent.getCreditorSystemId()
+                consent.getPurposeCode(),
+                consent.getCreditorSystemId(),
+                consent.getGrantedAt(),
+                consent.getExpiresAt(),
+                consent.getRevokedAt()
         );
     }
 }

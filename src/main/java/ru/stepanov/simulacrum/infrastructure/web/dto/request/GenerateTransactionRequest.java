@@ -19,16 +19,13 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GenerateTransactionRequest {
-    @NotNull
     @Min(0)
     @Max(9999)
     private Integer mccCode;
 
-    @NotBlank
     @Size(max = 140)
     private String merchantName;
 
-    @NotBlank
     @Size(max = 35)
     private String merchantId;
 
@@ -44,11 +41,11 @@ public class GenerateTransactionRequest {
     @NotNull
     private CreditDebitCode creditDebitIndicator;
 
-    @NotBlank
     @Size(max = 140)
     private String debtorName;
 
-    @NotBlank
     @Size(max = 140)
     private String creditorName;
+
+    private String remittanceInformation;
 }

@@ -2,6 +2,9 @@ package ru.stepanov.simulacrum.application.usecase.transaction;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.stepanov.simulacrum.application.usecase.account.exception.AccountNotFoundException;
+import ru.stepanov.simulacrum.application.usecase.consent.exception.ConsentNotFoundException;
+import ru.stepanov.simulacrum.application.usecase.transaction.exception.DebitRejectedException;
 import ru.stepanov.simulacrum.domain.model.account.Account;
 import ru.stepanov.simulacrum.domain.model.account.AccountStatus;
 import ru.stepanov.simulacrum.domain.model.consent.Consent;
@@ -16,7 +19,6 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -27,50 +29,42 @@ public class SubmitDebitUseCase {
     private final AccountRepository accountRepository;
 
     public TransactionHistory execute(String consentId, String sourceAccountId, String recipientToken, BigDecimal amount, String currency) {
-        TransactionHistory tx = createDebitTransaction(consentId, sourceAccountId, recipientToken, amount, currency);
-
         if (consentId == null || consentId.isBlank()) {
-            return reject(tx, "CONSENT_NOT_FOUND", "Consent does not exist");
+            throw new ConsentNotFoundException(consentId == null ? "null" : consentId);
         }
 
-        Optional<Consent> consent = consentRepository.findById(consentId);
-        if (consent.isEmpty()) {
-            return reject(tx, "CONSENT_NOT_FOUND", "Consent does not exist");
-        }
+        Consent existingConsent = consentRepository.findById(consentId)
+                .orElseThrow(() -> new ConsentNotFoundException(consentId));
 
-        Consent existingConsent = consent.get();
         if (existingConsent.getStatus() != ConsentStatus.Active) {
-            return reject(tx, "CONSENT_NOT_ACTIVE", "Consent is not active");
+            throw new DebitRejectedException("CONSENT_INACTIVE", "Consent is not in Active status");
         }
 
         if (!Objects.equals(existingConsent.getAccountId(), sourceAccountId)) {
-            return reject(tx, "ACCOUNT_CONSENT_MISMATCH", "Consent is not assigned to the source account");
+            throw new DebitRejectedException("ACCOUNT_CONSENT_MISMATCH", "Consent is not assigned to the source account");
         }
 
         if (sourceAccountId == null || sourceAccountId.isBlank()) {
-            return reject(tx, "ACCOUNT_NOT_FOUND", "Source account does not exist");
+            throw new AccountNotFoundException(sourceAccountId == null ? "null" : sourceAccountId);
         }
 
-        Optional<Account> account = accountRepository.findById(sourceAccountId);
-        if (account.isEmpty()) {
-            return reject(tx, "ACCOUNT_NOT_FOUND", "Source account does not exist");
-        }
+        Account sourceAccount = accountRepository.findById(sourceAccountId)
+                .orElseThrow(() -> new AccountNotFoundException(sourceAccountId));
 
-        Account sourceAccount = account.get();
         if (sourceAccount.getStatus() == AccountStatus.Disabled || sourceAccount.getStatus() == AccountStatus.Deleted) {
-            return reject(tx, "ACCOUNT_NOT_AVAILABLE", "Source account is disabled or deleted");
+            throw new DebitRejectedException("ACCOUNT_DISABLED", "Source account is disabled or deleted");
         }
 
         if (!sameCurrency(currency, existingConsent.getCurrency()) || !sameCurrency(currency, sourceAccount.getCurrency())) {
-            return reject(tx, "CURRENCY_MISMATCH", "Request currency does not match consent or source account currency");
+            throw new DebitRejectedException("CURRENCY_MISMATCH", "Request currency does not match consent or source account currency");
         }
 
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
-            return reject(tx, "INVALID_AMOUNT", "Debit amount must be positive");
+            throw new DebitRejectedException("INVALID_AMOUNT", "Debit amount must be positive");
         }
 
         if (existingConsent.getMaxSingleDebit() != null && amount.compareTo(existingConsent.getMaxSingleDebit()) > 0) {
-            return reject(tx, "MAX_SINGLE_DEBIT_EXCEEDED", "Debit amount exceeds max single debit limit");
+            throw new DebitRejectedException("CONSENT_LIMIT_EXCEEDED", "Debit amount exceeds max single debit limit");
         }
 
         BigDecimal totalDebitLimit = existingConsent.getTotalDebitLimit();
@@ -78,15 +72,11 @@ public class SubmitDebitUseCase {
             BigDecimal currentTotal = transactionHistoryRepository.sumNonRejectedDebitAmountByConsentId(consentId);
             BigDecimal requestedTotal = (currentTotal == null ? BigDecimal.ZERO : currentTotal).add(amount);
             if (requestedTotal.compareTo(totalDebitLimit) > 0) {
-                return reject(tx, "TOTAL_DEBIT_LIMIT_EXCEEDED", "Debit amount exceeds total debit limit");
+                throw new DebitRejectedException("CONSENT_LIMIT_EXCEEDED", "Debit amount exceeds total debit limit");
             }
         }
 
-        return transactionHistoryRepository.save(tx);
-    }
-
-    private TransactionHistory reject(TransactionHistory tx, String failureCode, String failureMessage) {
-        tx.reject(failureCode, failureMessage);
+        TransactionHistory tx = createDebitTransaction(consentId, sourceAccountId, recipientToken, amount, currency);
         return transactionHistoryRepository.save(tx);
     }
 

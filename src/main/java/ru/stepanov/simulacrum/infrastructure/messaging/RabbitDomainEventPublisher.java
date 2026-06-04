@@ -22,8 +22,6 @@ public class RabbitDomainEventPublisher implements DomainEventPublisherPort {
                     RabbitMQConfig.TRANSACTION_CREATED_KEY,
                     TransactionCreatedMessage.from(e)
             );
-        } else if (event instanceof TransactionStatusChangedEvent e) {
-            rabbit.convertAndSend(RabbitMQConfig.EXCHANGE, "transaction.status.changed", e);
         }
     }
 }

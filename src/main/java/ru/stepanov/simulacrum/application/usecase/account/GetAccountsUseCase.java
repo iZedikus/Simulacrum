@@ -15,4 +15,12 @@ public class GetAccountsUseCase {
     public List<Account> execute() {
         return repo.findAll();
     }
+
+    public List<Account> execute(int page, int size) {
+        return repo.findAll(page, size);
+    }
+
+    public long count() {
+        return repo.count();
+    }
 }

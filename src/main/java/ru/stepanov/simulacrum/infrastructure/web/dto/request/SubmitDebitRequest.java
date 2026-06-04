@@ -1,5 +1,6 @@
 package ru.stepanov.simulacrum.infrastructure.web.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -31,6 +32,7 @@ public class SubmitDebitRequest {
     @NotNull
     @Positive
     @Digits(integer = 18, fraction = 2)
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private BigDecimal amount;
 
     @NotBlank

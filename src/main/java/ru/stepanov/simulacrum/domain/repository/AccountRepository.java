@@ -10,4 +10,8 @@ public interface AccountRepository {
     Account save(Account account);
 
     List<Account> findAll();
+
+    List<Account> findAll(int page, int size);
+
+    long count();
 }

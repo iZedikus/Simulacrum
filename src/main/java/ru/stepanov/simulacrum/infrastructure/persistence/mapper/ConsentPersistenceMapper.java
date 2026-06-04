@@ -5,13 +5,11 @@ import ru.stepanov.simulacrum.domain.model.consent.Consent;
 import ru.stepanov.simulacrum.domain.model.consent.ConsentStatus;
 import ru.stepanov.simulacrum.infrastructure.persistence.entity.ConsentJpaEntity;
 
-import java.time.Instant;
 import java.util.UUID;
 
 @Component
 public class ConsentPersistenceMapper {
     public ConsentJpaEntity toEntity(Consent consent) {
-        Instant revokedAt = consent.getStatus() == ConsentStatus.Revoked ? Instant.now() : null;
         return new ConsentJpaEntity(
                 UUID.fromString(consent.getConsentId()),
                 consent.getAccountId(),
@@ -19,11 +17,11 @@ public class ConsentPersistenceMapper {
                 consent.getTotalDebitLimit(),
                 consent.getMaxSingleDebit(),
                 consent.getCurrency(),
-                null,
+                consent.getPurposeCode(),
                 consent.getCreditorSystemId(),
-                Instant.now(),
-                null,
-                revokedAt
+                consent.getGrantedAt(),
+                consent.getExpiresAt(),
+                consent.getRevokedAt()
         );
     }
 
@@ -34,8 +32,12 @@ public class ConsentPersistenceMapper {
                 entity.getTotalDebitLimit(),
                 entity.getMaxSingleDebit(),
                 entity.getCurrency(),
+                entity.getPurposeCode(),
                 entity.getCreditorSystemId(),
-                ConsentStatus.valueOf(entity.getStatus())
+                ConsentStatus.valueOf(entity.getStatus()),
+                entity.getGrantedAt(),
+                entity.getExpiresAt(),
+                entity.getRevokedAt()
         );
     }
 }

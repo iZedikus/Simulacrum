@@ -6,6 +6,7 @@ import ru.stepanov.simulacrum.application.usecase.account.CreateAccountUseCase;
 import ru.stepanov.simulacrum.application.usecase.account.GetAccountUseCase;
 import ru.stepanov.simulacrum.application.usecase.account.GetAccountsUseCase;
 import ru.stepanov.simulacrum.application.usecase.account.exception.AccountNotFoundException;
+import ru.stepanov.simulacrum.application.usecase.transaction.GetTransactionUseCase;
 import ru.stepanov.simulacrum.application.usecase.transaction.GetTransactionsUseCase;
 import ru.stepanov.simulacrum.domain.model.account.Account;
 import ru.stepanov.simulacrum.domain.model.account.AccountStatus;
@@ -39,20 +40,21 @@ class AccountControllerTest {
             new GetAccountsUseCase(accountRepository),
             new GetAccountUseCase(accountRepository),
             new ChangeAccountStatusUseCase(accountRepository),
-            new GetTransactionsUseCase(transactionRepository)
+            new GetTransactionsUseCase(transactionRepository),
+            new GetTransactionUseCase(transactionRepository)
     );
 
     @Test
     void returnsEmptyTransactionHistoryForExistingAccount() {
         accountRepository.save(enabledAccount("account-1"));
 
-        TransactionPageResponse response = controller.transactions("account-1", 0, 20);
+        TransactionPageResponse response = controller.transactions("account-1", 0, 20, null, null);
 
         assertEquals(List.of(), response.getContent());
-        assertEquals(0, response.getPage());
-        assertEquals(20, response.getSize());
-        assertEquals(0, response.getTotalElements());
-        assertEquals(0, response.getTotalPages());
+        assertEquals(0, response.getMeta().getPage());
+        assertEquals(20, response.getMeta().getSize());
+        assertEquals(0, response.getMeta().getTotalElements());
+        assertEquals(0, response.getMeta().getTotalPages());
     }
 
     @Test
@@ -62,23 +64,23 @@ class AccountControllerTest {
         transactionRepository.save(transaction("tx-new", "account-1", Instant.parse("2026-01-02T00:00:00Z"), "15.50"));
         transactionRepository.save(transaction("tx-other", "account-2", Instant.parse("2026-01-03T00:00:00Z"), "99.99"));
 
-        TransactionPageResponse response = controller.transactions("account-1", 0, 10);
+        TransactionPageResponse response = controller.transactions("account-1", 0, 10, null, null);
 
         assertEquals(2, response.getContent().size());
         assertEquals("tx-new", response.getContent().get(0).getTransactionId());
         assertEquals("tx-old", response.getContent().get(1).getTransactionId());
         assertEquals("AcceptedSettlementCompleted", response.getContent().get(0).getStatus());
-        assertEquals(new BigDecimal("15.50"), response.getContent().get(0).getChargeAmount());
-        assertEquals("RUB", response.getContent().get(0).getChargeCurrency());
-        assertEquals(2, response.getTotalElements());
-        assertEquals(1, response.getTotalPages());
+        assertEquals(new BigDecimal("15.50"), response.getContent().get(0).getAmount());
+        assertEquals("RUB", response.getContent().get(0).getCurrency());
+        assertEquals(2, response.getMeta().getTotalElements());
+        assertEquals(1, response.getMeta().getTotalPages());
     }
 
     @Test
     void checksAccountExistsBeforeReturningTransactionHistory() {
         transactionRepository.save(transaction("tx-1", "missing-account", Instant.parse("2026-01-01T00:00:00Z"), "10.00"));
 
-        assertThrows(AccountNotFoundException.class, () -> controller.transactions("missing-account", 0, 20));
+        assertThrows(AccountNotFoundException.class, () -> controller.transactions("missing-account", 0, 20, null, null));
         assertEquals(0, transactionRepository.findByAccountIdCalls);
         assertEquals(0, transactionRepository.countByAccountIdCalls);
     }
@@ -124,6 +126,16 @@ class AccountControllerTest {
         @Override
         public List<Account> findAll() {
             return new ArrayList<>(accounts.values());
+        }
+
+        @Override
+        public List<Account> findAll(int page, int size) {
+            return new ArrayList<>(accounts.values());
+        }
+
+        @Override
+        public long count() {
+            return accounts.size();
         }
     }
 
