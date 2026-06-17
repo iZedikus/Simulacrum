@@ -9,17 +9,10 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @OpenAPIDefinition(
         info = @Info(
-                title = "Simulacrum API",
-                description = "API for account, transaction and consent simulation",
-                version = "1.0.0",
-                contact = @Contact(name = "Simulacrum Team")
-        ),
-        tags = {
-                @Tag(name = "Accounts"),
-                @Tag(name = "Transactions"),
-                @Tag(name = "Consents"),
-                @Tag(name = "Admin")
-        }
+                title = "Симулякр - Система по имитации пользовательской активности",
+                description = "API для управления аккаунтами, ПДА и транзакциями",
+                version = "1.0.0"
+        )
 )
 public class OpenApiConfig {
 }

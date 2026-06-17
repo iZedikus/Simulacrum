@@ -41,7 +41,6 @@ public class RegisterConsentRequest {
     private String purposeCode;
 
     @NotBlank
-    @Size(max = 35)
     private String creditorSystemId;
 
     private Instant expiresAt;
